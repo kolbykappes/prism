@@ -31,7 +31,7 @@ export function ProjectCard({
 }: ProjectCardProps) {
   return (
     <Link href={`/projects/${id}`}>
-      <Card className="transition-colors hover:border-primary/50">
+      <Card className="cursor-pointer transition-colors hover:border-primary/50 hover:shadow-md">
         <CardHeader>
           <CardTitle>{name}</CardTitle>
           {description && (

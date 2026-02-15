@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Download, RotateCw, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -110,7 +111,7 @@ export function SourceFilesTab({
                   rel="noopener noreferrer"
                 >
                   <Button variant="outline" size="sm">
-                    Download
+                    <Download /> Download
                   </Button>
                 </a>
                 <Button
@@ -118,14 +119,14 @@ export function SourceFilesTab({
                   size="sm"
                   onClick={() => handleReprocess(file.id)}
                 >
-                  Re-process
+                  <RotateCw /> Re-process
                 </Button>
                 <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => handleDelete(file.id)}
                 >
-                  Delete
+                  <Trash2 /> Delete
                 </Button>
               </div>
             </TableCell>

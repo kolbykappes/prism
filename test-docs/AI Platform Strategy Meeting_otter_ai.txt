@@ -1,0 +1,106 @@
+Speaker 1  0:00  
+Hear that you Betty previously, is that correct? Yeah, I thought that really our intent today was to to have a just a check in and make sure that the train was on the track so that our consultants were achieving what you needed them to. So I'm happy to hear that things are going well?
+
+Speaker 2  0:22  
+Yes, yes. I think Adam especially because he is energetic, individual, pretty vocal, likes to talk and all whoever has he worked with at fcb, they have actually pinged me saying how great Adam is and how so it is fantastic to see that, okay, that type of personality has resonated with the individuals here within the company, and that's what I liked about him to begin with. I think sometimes you get over excited about certain aspects, but I think, and I understood why he was getting over excited about being a full time and all of that young kid insurance and all I think there are some things being a contractor versus FTE thing still kind of confused. Can I go over 40 hours? Can I how can I manage my time within 40 and all of that? But I think now he has gotten used to it. I told him, like the budget is 40 hours. If you are overwhelmed, just tell me, we'll slow it down. FCB doesn't move fast. I think they don't move with our pace. So it is okay. We are not in a startup.
+
+Speaker 1  1:39  
+Thank you for, for your patience with with him on that and you know, Kolby, and I, I know it was bumpy is the wrong word, but you know he was, he was making some adjustments at the beginning, and this is part of what we do. We wanted to check in with him also. And I think safe to say, Kolby, we had a bit of a reset with him to make sure that that he was working in a way that would be most compatible with NCD, and just happy to see that in the last two weeks or so that that that seems to be resonating,
+
+Speaker 2  2:16  
+yeah, no, and I never had doubt About his delivery or quality of work and all that. So never had a problem with it. I spoke with him extensively before making the decision that he is the guy that I want to have on my team. And I told him candidly that when I was looking at contractors, my full time roles were not approved. They were awful because Scott and Greg were having discussions about budget, and I did not know when that budget was going to get cleared. And fortunately, it just got cleared when we finalized, you like, literally in the next week it got finalized. So it was a timing issue. It was not an intention issue. So intention was always to have you contract, to hire, if we go through contract route, or I was going to talk to Whitney saying, like, I'll, I will pay whatever premium you charge for somebody to kind of help find a person and convert you full time. But I didn't have a role. I think that was the problem. So he was, like ashlecks work towards become, becoming a team faster. And then let's hold off. Let's see how you all tell whether you like it or not to work in this environment, and we can take it from there.
+
+Speaker 1  3:37  
+Well, I know, I know there's interest in that, and just happy, happy that, that you're getting good feedback on both the consultants and Pete's doing well too.
+
+Speaker 2  3:48  
+Pete is doing well. I think he has a very different personality than Adam. I think he's more technical than Adam, so I'm going to give him a role where he will be more successful. So yesterday, I had a discussion with him around see, you can become a use case project manager, or use case manager where you are working with, like lot of people, to make the use case see the light in production. Or you can become a product manager for the AI platform that we are putting together. And he was like, Ash, I think I would like to do that part, because it is more technical, more contained, which doesn't expose them to like 50 odd people. I think it's just the preference of what he wants to do. And I'm like, Yeah, that's why I gave you the option, as I have many things to do so, and he, he picked that, so I will make that pivot, and I will have him to the AI program manager type of role.
+
+Speaker 1  4:52  
+That's great. Can you tell us more about the platform that you're that you're building?
+
+Speaker 2  4:57  
+Yeah, so this is our enterprise AI platform. I think this will be so we are kicking off a project in Feb, hoping to kind of implement something by q3 of this year. But we know SCB in q3 can easily become q4 but targeting q3 right now, aligning all that and that enterprise AI platform will be. It's a reusable platform. We will start with one architecture pattern. We are going to probably think about rag a knowledge agent type of a pattern, and then take one Lighthouse use case and build the lighthouse use case along with that platform. So that way for that particular use case to make it real. What components do I need? What services do I need? What card rails do I need? What controls do I need, going through that entire motion and standing up the platform with one use case. That means, if there is another use case which is exactly similar or very close, we can start building on top of the platform, and keep on still adding different patterns on the platform. So I think that the idea behind it, so we'll start working on it. We're working on our admin work like project plans and charters and all of that. But I think super excited about that role. It's going to be, I think one of the envious roles, probably on my team, is to become the product owner for that platform. I think it's going to be fantastic.
+
+Kolby Kappes  6:34  
+Have you picked a tech stack or a technical platform that you plan to
+
+Speaker 2  6:39  
+use for? Yeah, AWS, bedrock, and then to begin with Claude models like from anthropic so we need, we figured that even though we get anthropic models from AWS bedrock, they actually AWS is kind of subcontracting with anthropic to make the models happen or provisioned in the bedrock environment, which means that now we need to do an end user agreement with anthropic So, but if so, that was something different that we learned. So now we have to work with our legal to start figuring that process out so lot of pieces that will move in parallel, but yeah, short answer is, AWS, is our platform?
+
+Unknown Speaker  7:28  
+Great? That's great. You've got some experience there, right?
+
+Kolby Kappes  7:32  
+Kolby, yep, we use, we use bedrock a decent amount, but we use anthropic models and anthropic tool chain on most of our teams.
+
+Speaker 2  7:43  
+So we're piece Kolby, I think as you're talking about, sorry to cut you off. Please go ahead.
+
+Kolby Kappes  7:51  
+No, I was just gonna say that we're in the midst of doing a couple of like, significant internal efforts where we are starting to move some dev teams over to more agentic sorts of approaches using Claude code. We've got some other things that we've got several of our teams who are now using teams based approaches with projects around Claude projects. You know, we've got an initiative where we're starting to train non technical folks on how to start to use some agenting mechanisms to start to, like, manage their internal knowledge around, for instance, like clients or opportunities. So there's several things we're doing in the cloud ecosystem, beautiful.
+
+Speaker 2  8:27  
+That's what actually I was going to talk about. Is clorofore. So when you started talking about, you're going doing lot of work, that's what came to my mind. That is another use case that is very close to our heart, and we are passionate about implementing so as you know, we have in IT world. We have lot of contractors who are doing development, testing and all of that, not unusual as any other institution. So we want to leverage Kolby to see if we can get efficiencies in entire SDLC life cycle. So if you have any experience on that, Kolby, I think I would like to learn of how you have implemented it, how you see other clients are implementing it, and then I'm, I think I'm going to need some help, probably near future, to at least get a product owner or somebody like that to drive that particular project?
+
+Kolby Kappes  9:22  
+Well, we've actually got an offering that we're just in the pilot stages with, with a couple of our clients, large fortune, 50 clients, that we're starting to do AI training for developers to basically start to teach them either how to use tools like, you know, cursor, or cursor, or GitHub copilot, or, you know, in some cases, Claude code, that might be of interest as you go down the path. But yeah, we'd be happy to consult with you on whatever you need there and help you with whatever additional headcount
+
+Speaker 2  9:51  
+you need. That would be awesome. No, I will bring you along with the journey. Do you know Shannon Webster? By any chance?
+
+Unknown Speaker  9:59  
+I haven't met Shannon yet, but I know of Shannon. Yes, yes.
+
+Speaker 2  10:02  
+Okay, so she drives the SDLC within the bank like so she's the one who is going to be the business owner for this particular use case. Then there is other individual within it, aruns. Do you know Arun? By any chance? Have you interacted with him?
+
+Speaker 1  10:19  
+I haven't yet, but I didn't know in the process we're getting there, my team has for sure.
+
+Speaker 2  10:24  
+Okay, yeah, so Arun is in it, but he is a dotted line to Scott. He does lot of data engineering work. He has a team of 500 people or so three so he is going to be my point of contact for this particular use case, Shannon being the business owner. And then then it has to go through the AI governance. I will have my own product owner. But because we have never done something like that, we are going to need some advisory type of experience and help. So let me formulate what that ask is going to be over the next few weeks, and I will keep you informed so that we can create a point of view or something like that.
+
+Speaker 1  11:08  
+Okay, that sounds, that sounds great if you had to distill, if you had to distill the use case to just like a sentence, you know, what would it be in your mind?
+
+Speaker 2  11:19  
+So it is more about code generation automation and testing automation and requirements automation. So I think those are the three, largely the SDLC areas where we want to apply AI. We met with anthropic they gave us a good demo and their point of view. So mostly we are going to use plot board for this purpose and get left wherever possible.
+
+Speaker 1  11:49  
+Okay, yeah, that's helpful. That's really, really helpful. Thank you. Super well. You know, I think our intent is to, I believe we have the schedule for sort of bi weekly cadence, and we'll, we'll keep them tight as that, that's our intent, and we'll give you time back throughout, but perhaps we just leave that as a an agenda topic for our future sessions. If that, if that works for you. Oh, absolutely, absolutely. Yeah. I love that. Anything else that's top of mind, or any, anything else that you wanted to share with us in terms of the priorities for Adam and Pete.
+
+Speaker 2  12:26  
+No, I think they are doing great. Very nice people to work with. I think that matters the most. I think they are very nice individuals, human beings, and they are also working well with each other. I think collaboration is key. I think I want to make sure they have accountability, but they also collaborate and feel to kind of bounce ideas against each other and all of that. And I think I'm going to have next higher join Monday, so if he's going to be an FTE, and then I will have three more people joining. So I think so we are making some progress around that. One piece, I think, if you can think about is I'm having trouble hiring a person for AI adoption leader. And what that means is working with our learning and development team to figure out how to put an AI Academy together, or what should be my communications strategy from Ai standpoint. How should I work with change management team to drive change management initiatives from Ai standpoint only, so if you have any experience on how you are helping other clients, or how you're doing it within your own company? I'm sure you are. And by helping me find some bios, resumes, I think those are the things that I would like to learn more.
+
+Kolby Kappes  13:55  
+We've been working with our internal L D for the last couple of years around that, and we've got a couple of clients that we've helped. It's one of the more challenging aspects, quite frankly, as Scott and I were in a talk a few days ago in preparation for our yearly kickoff meeting, and that was one of the topics that came up, was organizational change management. And you know, really getting adoption with AI tools is really challenging. You'll roll these fancy new tools out, and people be excited for a couple of days or a couple of weeks, and then you check back a month later. Back a month later and the usage is cratered, yet you're still spending all the money on the licenses. So having those processes in place is key, and it's good to hear you guys are working
+
+Speaker 1  14:34  
+on that. I failed to mention that that Ash, that Scott, was kind enough to participate in our kickoff, our like, our business kickoff, within the organization. It was, it was really, really generous of him, and he and Kolby paired up on AI topics as part of that kickoff. So that was, that was actually kind
+
+Speaker 2  14:56  
+of fun. Awesome, awesome. That's great. That's great. Perfect.
+
+Speaker 1  15:01  
+Well, any other topics for today? Well, we'll take that back and we'll, we'll, we'll think further about and might even with your permission, we'll, we'll go ahead and cast a net to see what, what known entities we might have that that could fulfill the AI adoption leader function, we'll go from there. Sounds good to me. Perfect. Any other requests
+
+Speaker 2  15:28  
+for today? No. Thank you so much. You have been super helpful. Great partners.
+
+Speaker 1  15:32  
+Thank you. Thank you. Great to talk with you, and we'll talk soon. Applause.
+
+Speaker 1  15:58  
+Hi, hello, that was fun. That was useful. That was useful. Just a healthy check in 17 minutes,
+
+Kolby Kappes  16:09  
+17 minutes, two new requirements.
+
+Speaker 1  16:11  
+So, hey, yeah, yeah. I mean, I like that, so wanted to make sure that I heard the same. Or did you have a transcription of
+
+Kolby Kappes  16:21  
+that? Course, I did come.
+
+Transcribed by https://otter.ai

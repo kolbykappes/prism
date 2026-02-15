@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Upload, X, FileUp } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -75,7 +76,7 @@ export function UploadDialog({ projectId }: { projectId: string }) {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setFile(null); }}>
       <DialogTrigger asChild>
-        <Button>Upload File</Button>
+        <Button><Upload /> Upload File</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -83,9 +84,10 @@ export function UploadDialog({ projectId }: { projectId: string }) {
         </DialogHeader>
 
         <div
-          className={`flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors ${
-            dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25"
+          className={`flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed p-8 transition-colors ${
+            dragOver ? "border-primary bg-primary/5" : "border-muted-foreground/25 hover:border-muted-foreground/50"
           }`}
+          onClick={() => !file && inputRef.current?.click()}
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           onDrop={(e) => {
@@ -105,9 +107,9 @@ export function UploadDialog({ projectId }: { projectId: string }) {
                 variant="ghost"
                 size="sm"
                 className="mt-2"
-                onClick={() => setFile(null)}
+                onClick={(e) => { e.stopPropagation(); setFile(null); }}
               >
-                Remove
+                <X /> Remove
               </Button>
             </div>
           ) : (
@@ -119,9 +121,9 @@ export function UploadDialog({ projectId }: { projectId: string }) {
                 variant="outline"
                 size="sm"
                 className="mt-2"
-                onClick={() => inputRef.current?.click()}
+                onClick={(e) => { e.stopPropagation(); inputRef.current?.click(); }}
               >
-                Choose File
+                <FileUp /> Choose File
               </Button>
               <p className="mt-2 text-xs text-muted-foreground">
                 .txt, .vtt, .srt, .pdf, .md (max 50MB)
@@ -143,7 +145,7 @@ export function UploadDialog({ projectId }: { projectId: string }) {
 
         {file && (
           <Button onClick={handleUpload} disabled={uploading}>
-            {uploading ? "Uploading..." : "Upload"}
+            <Upload /> {uploading ? "Uploading..." : "Upload"}
           </Button>
         )}
       </DialogContent>

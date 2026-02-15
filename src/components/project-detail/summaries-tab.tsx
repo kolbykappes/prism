@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { RotateCw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -100,7 +101,7 @@ export function SummariesTab({
                 onClick={() => handleReprocess(summary.sourceFileId)}
                 disabled={summary.processingStatus === "processing"}
               >
-                Re-process
+                <RotateCw /> Re-process
               </Button>
             </TableCell>
           </TableRow>
