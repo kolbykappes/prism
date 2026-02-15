@@ -1,0 +1,96 @@
+import { notFound } from "next/navigation";
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { TabContainer } from "@/components/project-detail/tab-container";
+import { UploadDialog } from "@/components/project-detail/upload-dialog";
+import { ProcessingIndicator } from "@/components/project-detail/processing-indicator";
+
+export const dynamic = "force-dynamic";
+
+export default async function ProjectDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  const project = await prisma.project.findUnique({
+    where: { id },
+    include: {
+      sourceFiles: {
+        orderBy: { uploadedAt: "desc" },
+      },
+      markdownSummaries: {
+        orderBy: { generatedAt: "desc" },
+        include: {
+          sourceFile: { select: { filename: true } },
+        },
+      },
+    },
+  });
+
+  if (!project) {
+    notFound();
+  }
+
+  const summaries = project.markdownSummaries.map((s) => ({
+    id: s.id,
+    sourceFileId: s.sourceFileId,
+    content: s.content,
+    generatedAt: s.generatedAt?.toISOString() ?? null,
+    processingStatus: s.processingStatus,
+    tokenCount: s.tokenCount,
+    truncated: s.truncated,
+    sourceFile: s.sourceFile,
+  }));
+
+  const files = project.sourceFiles.map((f) => ({
+    id: f.id,
+    filename: f.filename,
+    fileType: f.fileType,
+    fileSize: f.fileSize,
+    blobUrl: f.blobUrl,
+    uploadedAt: f.uploadedAt.toISOString(),
+  }));
+
+  return (
+    <div>
+      <div className="mb-2">
+        <Link
+          href="/"
+          className="text-sm text-muted-foreground hover:underline"
+        >
+          &larr; All Projects
+        </Link>
+      </div>
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">{project.name}</h1>
+          {project.description && (
+            <p className="mt-1 text-muted-foreground">{project.description}</p>
+          )}
+          <p className="mt-1 text-sm text-muted-foreground">
+            Last updated {project.updatedAt.toLocaleDateString()}
+          </p>
+        </div>
+        <UploadDialog projectId={id} />
+      </div>
+
+      <ProcessingIndicator
+        activeCount={
+          summaries.filter(
+            (s) =>
+              s.processingStatus === "queued" ||
+              s.processingStatus === "processing"
+          ).length
+        }
+      />
+
+      <TabContainer
+        summaries={summaries}
+        files={files}
+        projectId={id}
+      />
+    </div>
+  );
+}

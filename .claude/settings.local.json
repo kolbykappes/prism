@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:github.com)",
+      "Bash(npx create-next-app:*)",
+      "Bash(npm install:*)",
+      "Bash(npx shadcn@latest init:*)",
+      "Bash(npx shadcn@latest add button card dialog tabs table badge input textarea label separator skeleton sonner -y)",
+      "Bash(npm run build:*)",
+      "Bash(npx prisma:*)",
+      "Bash(node -e:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
