@@ -53,7 +53,7 @@ export function OtterImportDialog({ projectId }: { projectId: string }) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_INGEST_SECRET || ""}`,
+          "X-Source": "app",
         },
         body: JSON.stringify({
           projectId,

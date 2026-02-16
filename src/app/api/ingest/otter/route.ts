@@ -11,11 +11,15 @@ export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {
   try {
-    // Auth: Bearer token
-    const authHeader = request.headers.get("authorization");
-    const token = authHeader?.replace("Bearer ", "");
-    if (!process.env.INGEST_SECRET || token !== process.env.INGEST_SECRET) {
-      return errorResponse("Unauthorized", 401);
+    // Auth: Bearer token required for external callers (Zapier).
+    // Requests from the app UI include an X-Source: app header and skip auth.
+    const isAppRequest = request.headers.get("x-source") === "app";
+    if (!isAppRequest) {
+      const authHeader = request.headers.get("authorization");
+      const token = authHeader?.replace("Bearer ", "");
+      if (!process.env.INGEST_SECRET || token !== process.env.INGEST_SECRET) {
+        return errorResponse("Unauthorized", 401);
+      }
     }
 
     const body = await request.json();

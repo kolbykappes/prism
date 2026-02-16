@@ -472,7 +472,6 @@ ANTHROPIC_API_KEY=      # Claude API key
 INNGEST_EVENT_KEY=      # Inngest event key
 INNGEST_SIGNING_KEY=    # Inngest signing key
 INGEST_SECRET=          # Shared secret for webhook authentication (Otter, email)
-NEXT_PUBLIC_INGEST_SECRET=  # Client-side copy for manual import UI
 ```
 
 ---
