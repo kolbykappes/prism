@@ -34,7 +34,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   const body = await request.json();
-  const { name, description } = body;
+  const { name, description, overview } = body;
 
   if (name !== undefined && (typeof name !== "string" || name.trim().length === 0)) {
     return errorResponse("Project name cannot be empty");
@@ -59,6 +59,7 @@ export async function PUT(
     data: {
       ...(name !== undefined && { name: name.trim() }),
       ...(description !== undefined && { description: description?.trim() || null }),
+      ...(overview !== undefined && { overview: overview?.trim() || null }),
     },
   });
 

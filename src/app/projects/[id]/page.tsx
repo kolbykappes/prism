@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { TabContainer } from "@/components/project-detail/tab-container";
 import { UploadDialog } from "@/components/project-detail/upload-dialog";
 import { ProcessingIndicator } from "@/components/project-detail/processing-indicator";
+import { ProjectOverviewEditor } from "@/components/project-detail/project-overview-editor";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export default async function ProjectDetailPage({
       markdownSummaries: {
         orderBy: { generatedAt: "desc" },
         include: {
-          sourceFile: { select: { filename: true } },
+          sourceFile: { select: { filename: true, uploadedBy: true } },
         },
       },
     },
@@ -51,6 +52,7 @@ export default async function ProjectDetailPage({
     fileSize: f.fileSize,
     blobUrl: f.blobUrl,
     uploadedAt: f.uploadedAt.toISOString(),
+    uploadedBy: f.uploadedBy,
   }));
 
   return (
@@ -71,10 +73,22 @@ export default async function ProjectDetailPage({
           )}
           <p className="mt-1 text-sm text-muted-foreground">
             Last updated {project.updatedAt.toLocaleDateString()}
+            {" · "}
+            <Link
+              href={`/projects/${id}/activity`}
+              className="hover:underline"
+            >
+              Activity Log
+            </Link>
           </p>
         </div>
         <UploadDialog projectId={id} />
       </div>
+
+      <ProjectOverviewEditor
+        projectId={id}
+        initialOverview={project.overview ?? null}
+      />
 
       <ProcessingIndicator
         activeCount={

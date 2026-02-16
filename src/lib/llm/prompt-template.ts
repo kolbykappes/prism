@@ -1,12 +1,7 @@
-export function buildPrompt(
-  filename: string,
-  fileType: string,
-  extractedText: string
-): string {
-  return `You are a professional knowledge curator. Transform the following source content into well-structured markdown notes suitable for use as reference material in an AI assistant's project knowledge base.
+const DEFAULT_TEMPLATE = `You are a professional knowledge curator. Transform the following source content into well-structured markdown notes suitable for use as reference material in an AI assistant's project knowledge base.
 
-SOURCE FILE: ${filename}
-FILE TYPE: ${fileType}
+SOURCE FILE: {{filename}}
+FILE TYPE: {{fileType}}
 
 INSTRUCTIONS:
 - Create clear, scannable markdown with appropriate headings
@@ -20,5 +15,22 @@ INSTRUCTIONS:
 - Target output length: roughly 20-30% of source length (concise but comprehensive)
 
 SOURCE CONTENT:
-${extractedText}`;
+{{extractedText}}`;
+
+export function buildPrompt(
+  filename: string,
+  fileType: string,
+  extractedText: string,
+  templateContent?: string
+): string {
+  const template = templateContent ?? DEFAULT_TEMPLATE;
+
+  return template
+    .replace(/\{\{filename\}\}/g, filename)
+    .replace(/\{\{fileType\}\}/g, fileType)
+    .replace(/\{\{extractedText\}\}/g, extractedText);
+}
+
+export function getDefaultTemplateContent(): string {
+  return DEFAULT_TEMPLATE;
 }

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
+import { logActivity } from "@/lib/activity";
 
 export async function GET() {
   const projects = await prisma.project.findMany({
@@ -39,6 +40,12 @@ export async function POST(request: NextRequest) {
       name: name.trim(),
       description: description?.trim() || null,
     },
+  });
+
+  logActivity({
+    projectId: project.id,
+    action: "project_created",
+    metadata: { name: project.name },
   });
 
   return jsonResponse(project, 201);

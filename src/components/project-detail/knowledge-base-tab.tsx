@@ -6,15 +6,23 @@ import { EmptyState } from "@/components/layout/empty-state";
 
 interface Summary {
   id: string;
+  sourceFileId: string;
   content: string | null;
   generatedAt: string | null;
   processingStatus: string;
   sourceFile: {
     filename: string;
+    uploadedBy?: string;
   };
 }
 
-export function KnowledgeBaseTab({ summaries }: { summaries: Summary[] }) {
+export function KnowledgeBaseTab({
+  summaries,
+  onClickFilename,
+}: {
+  summaries: Summary[];
+  onClickFilename?: (sourceFileId: string) => void;
+}) {
   const completeSummaries = summaries.filter(
     (s) => s.processingStatus === "complete" && s.content
   );
@@ -35,13 +43,27 @@ export function KnowledgeBaseTab({ summaries }: { summaries: Summary[] }) {
           {i > 0 && <Separator className="mb-6" />}
           <div className="mb-4">
             <h3 className="text-lg font-semibold">
-              {summary.sourceFile.filename}
+              {onClickFilename ? (
+                <button
+                  className="hover:underline text-primary text-left"
+                  onClick={() => onClickFilename(summary.sourceFileId)}
+                >
+                  {summary.sourceFile.filename}
+                </button>
+              ) : (
+                summary.sourceFile.filename
+              )}
             </h3>
-            {summary.generatedAt && (
-              <p className="text-sm text-muted-foreground">
-                Generated {new Date(summary.generatedAt).toLocaleDateString()}
-              </p>
-            )}
+            <div className="flex gap-3 text-sm text-muted-foreground">
+              {summary.sourceFile.uploadedBy && (
+                <span>Uploaded by {summary.sourceFile.uploadedBy}</span>
+              )}
+              {summary.generatedAt && (
+                <span>
+                  Generated {new Date(summary.generatedAt).toLocaleDateString()}
+                </span>
+              )}
+            </div>
           </div>
           <MarkdownRenderer content={summary.content!} />
         </div>

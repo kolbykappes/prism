@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
 import { inngest } from "@/inngest/client";
+import { logActivity } from "@/lib/activity";
 
 export async function POST(
   _request: NextRequest,
@@ -43,6 +44,13 @@ export async function POST(
   await inngest.send({
     name: "file/uploaded",
     data: { sourceFileId: fileId },
+  });
+
+  logActivity({
+    projectId: id,
+    action: "reprocessed",
+    sourceFileId: fileId,
+    metadata: { filename: file.filename },
   });
 
   return jsonResponse({ success: true });

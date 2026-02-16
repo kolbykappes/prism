@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
 import { deleteBlobs } from "@/lib/blob";
+import { logActivity } from "@/lib/activity";
 
 export async function DELETE(
   _request: NextRequest,
@@ -32,6 +33,13 @@ export async function DELETE(
   await prisma.project.update({
     where: { id },
     data: { updatedAt: new Date() },
+  });
+
+  logActivity({
+    projectId: id,
+    action: "deleted",
+    sourceFileId: fileId,
+    metadata: { filename: file.filename },
   });
 
   return jsonResponse({ success: true });

@@ -25,15 +25,18 @@ interface Summary {
   truncated: boolean;
   sourceFile: {
     filename: string;
+    uploadedBy?: string;
   };
 }
 
 export function SummariesTab({
   summaries,
   projectId,
+  onClickFilename,
 }: {
   summaries: Summary[];
   projectId: string;
+  onClickFilename?: (sourceFileId: string) => void;
 }) {
   const router = useRouter();
 
@@ -70,6 +73,7 @@ export function SummariesTab({
         <TableRow>
           <TableHead>Source File</TableHead>
           <TableHead>Status</TableHead>
+          <TableHead>Uploaded By</TableHead>
           <TableHead>Generated</TableHead>
           <TableHead>Tokens</TableHead>
           <TableHead>Truncated</TableHead>
@@ -80,11 +84,21 @@ export function SummariesTab({
         {summaries.map((summary) => (
           <TableRow key={summary.id}>
             <TableCell className="font-medium">
-              {summary.sourceFile.filename}
+              {onClickFilename ? (
+                <button
+                  className="text-left hover:underline text-primary"
+                  onClick={() => onClickFilename(summary.sourceFileId)}
+                >
+                  {summary.sourceFile.filename}
+                </button>
+              ) : (
+                summary.sourceFile.filename
+              )}
             </TableCell>
             <TableCell>
               <StatusBadge status={summary.processingStatus} />
             </TableCell>
+            <TableCell>{summary.sourceFile.uploadedBy ?? "-"}</TableCell>
             <TableCell>
               {summary.generatedAt
                 ? new Date(summary.generatedAt).toLocaleDateString()

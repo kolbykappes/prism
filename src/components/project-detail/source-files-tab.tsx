@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Download, RotateCw, Trash2 } from "lucide-react";
+import { Download, RotateCw, Trash2, FileText } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,6 +21,7 @@ interface SourceFile {
   fileSize: number;
   blobUrl: string;
   uploadedAt: string;
+  uploadedBy: string;
 }
 
 function formatFileSize(bytes: number): string {
@@ -32,9 +33,11 @@ function formatFileSize(bytes: number): string {
 export function SourceFilesTab({
   files,
   projectId,
+  onViewSummary,
 }: {
   files: SourceFile[];
   projectId: string;
+  onViewSummary?: (fileId: string) => void;
 }) {
   const router = useRouter();
 
@@ -90,6 +93,7 @@ export function SourceFilesTab({
           <TableHead>Filename</TableHead>
           <TableHead>Type</TableHead>
           <TableHead>Size</TableHead>
+          <TableHead>Uploaded By</TableHead>
           <TableHead>Uploaded</TableHead>
           <TableHead></TableHead>
         </TableRow>
@@ -100,11 +104,21 @@ export function SourceFilesTab({
             <TableCell className="font-medium">{file.filename}</TableCell>
             <TableCell className="uppercase">{file.fileType}</TableCell>
             <TableCell>{formatFileSize(file.fileSize)}</TableCell>
+            <TableCell>{file.uploadedBy}</TableCell>
             <TableCell>
               {new Date(file.uploadedAt).toLocaleDateString()}
             </TableCell>
             <TableCell>
               <div className="flex gap-2">
+                {onViewSummary && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onViewSummary(file.id)}
+                  >
+                    <FileText /> View Summary
+                  </Button>
+                )}
                 <a
                   href={file.blobUrl}
                   target="_blank"

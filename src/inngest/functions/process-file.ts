@@ -5,6 +5,7 @@ import { truncateText } from "@/lib/llm/truncation";
 import { buildPrompt } from "@/lib/llm/prompt-template";
 import { generateSummary } from "@/lib/llm/claude";
 import { uploadBlob } from "@/lib/blob";
+import { logActivity } from "@/lib/activity";
 
 export const processFile = inngest.createFunction(
   {
@@ -42,19 +43,20 @@ export const processFile = inngest.createFunction(
       return extractText(buffer, sourceFile.fileType);
     });
 
-    // Step 3: Truncate if needed and call Claude
+    // Step 3: Fetch default prompt template, truncate, call Claude
     const result = await step.run("call-claude", async () => {
       const { text, truncated, percentCovered } = truncateText(extractedText);
 
-      let promptText = text;
-      if (truncated) {
-        promptText = text;
-      }
+      // Fetch default prompt template from DB
+      const defaultTemplate = await prisma.promptTemplate.findFirst({
+        where: { isDefault: true },
+      });
 
       const prompt = buildPrompt(
         sourceFile.filename,
         sourceFile.fileType,
-        promptText
+        text,
+        defaultTemplate?.content
       );
 
       const { content, model, inputTokens } = await generateSummary(prompt);
@@ -70,6 +72,7 @@ export const processFile = inngest.createFunction(
         model,
         inputTokens,
         truncated,
+        promptTemplateId: defaultTemplate?.id ?? null,
       };
     });
 
@@ -94,6 +97,7 @@ export const processFile = inngest.createFunction(
           processingStatus: "complete",
           tokenCount: result.inputTokens,
           truncated: result.truncated,
+          promptTemplateId: result.promptTemplateId,
           errorMessage: null,
         },
       });
@@ -109,6 +113,13 @@ export const processFile = inngest.createFunction(
         where: { id: sourceFile.projectId },
         data: { updatedAt: new Date() },
       });
+    });
+
+    logActivity({
+      projectId: sourceFile.projectId,
+      action: "summary_completed",
+      sourceFileId,
+      metadata: { filename: sourceFile.filename },
     });
 
     return { success: true, sourceFileId };

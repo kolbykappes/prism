@@ -10,6 +10,14 @@ export function Header() {
         <span className="ml-2 text-sm text-muted-foreground">
           Project Resource Ingestion &amp; Summary Manager
         </span>
+        <nav className="ml-auto flex items-center gap-4">
+          <Link
+            href="/prompts"
+            className="text-sm text-muted-foreground hover:text-foreground"
+          >
+            Prompts
+          </Link>
+        </nav>
       </div>
     </header>
   );
