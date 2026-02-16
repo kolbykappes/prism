@@ -52,11 +52,29 @@ export const processFile = inngest.createFunction(
         where: { isDefault: true },
       });
 
+      // Fetch project people for context
+      const projectPeople = await prisma.projectPerson.findMany({
+        where: { projectId: sourceFile.projectId },
+        include: { person: true },
+      });
+
+      const peopleContext = projectPeople.length > 0
+        ? projectPeople.map((pp) => {
+            const p = pp.person;
+            const parts = [`- ${p.name}`];
+            if (p.email) parts[0] += ` <${p.email}>`;
+            if (pp.role || p.role) parts[0] += ` (${pp.role || p.role})`;
+            if (p.organization) parts[0] += ` — ${p.organization}`;
+            return parts[0];
+          }).join("\n")
+        : undefined;
+
       const prompt = buildPrompt(
         sourceFile.filename,
         sourceFile.fileType,
         text,
-        defaultTemplate?.content
+        defaultTemplate?.content,
+        peopleContext
       );
 
       const { content, model, inputTokens } = await generateSummary(prompt);

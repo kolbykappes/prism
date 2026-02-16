@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KnowledgeBaseTab } from "./knowledge-base-tab";
 import { SummariesTab } from "./summaries-tab";
 import { SourceFilesTab } from "./source-files-tab";
+import { PeopleTab } from "./people-tab";
 
 interface Summary {
   id: string;
@@ -30,14 +31,31 @@ interface SourceFile {
   uploadedBy: string;
 }
 
+interface ProjectPerson {
+  id: string;
+  role: string | null;
+  notes: string | null;
+  autoExtracted: boolean;
+  addedAt: string;
+  person: {
+    id: string;
+    name: string;
+    email: string | null;
+    organization: string | null;
+    role: string | null;
+  };
+}
+
 export function TabContainer({
   summaries,
   files,
   projectId,
+  people,
 }: {
   summaries: Summary[];
   files: SourceFile[];
   projectId: string;
+  people: ProjectPerson[];
 }) {
   const [activeTab, setActiveTab] = useState("knowledge-base");
 
@@ -59,6 +77,7 @@ export function TabContainer({
         <TabsTrigger value="knowledge-base">Knowledge Base</TabsTrigger>
         <TabsTrigger value="summaries">Summaries</TabsTrigger>
         <TabsTrigger value="source-files">Source Files</TabsTrigger>
+        <TabsTrigger value="people">People</TabsTrigger>
       </TabsList>
       <TabsContent value="knowledge-base" className="mt-4">
         <KnowledgeBaseTab
@@ -79,6 +98,9 @@ export function TabContainer({
           projectId={projectId}
           onViewSummary={handleViewSummary}
         />
+      </TabsContent>
+      <TabsContent value="people" className="mt-4">
+        <PeopleTab people={people} projectId={projectId} />
       </TabsContent>
     </Tabs>
   );

@@ -13,6 +13,8 @@ enum FileType {
   srt
   pdf
   md
+  email
+  ics
 }
 
 enum ProcessingStatus {
@@ -28,6 +30,10 @@ enum ActivityAction {
   deleted
   summary_completed
   project_created
+  person_added
+  person_removed
+  email_ingested
+  otter_ingested
 }
 
 model Project {
@@ -42,10 +48,12 @@ model Project {
   userId       String? @map("user_id")
   googleDocId  String? @map("google_doc_id")
   googleDocUrl String? @map("google_doc_url")
+  emailAlias   String? @unique @map("email_alias")
 
   sourceFiles       SourceFile[]
   markdownSummaries MarkdownSummary[]
   activityLogs      ActivityLog[]
+  projectPeople     ProjectPerson[]
 
   @@map("projects")
 }
@@ -58,7 +66,8 @@ model SourceFile {
   fileSize   Int      @map("file_size")
   blobUrl    String   @map("blob_url")
   uploadedAt DateTime @default(now()) @map("uploaded_at")
-  uploadedBy String   @default("Kolby") @map("uploaded_by")
+  uploadedBy    String   @default("Kolby") @map("uploaded_by")
+  ingestSource  String?  @default("manual_upload") @map("ingest_source")
 
   project         Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
   markdownSummary MarkdownSummary?
@@ -128,4 +137,35 @@ model PromptTemplate {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("prompt_templates")
+}
+
+model Person {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  email        String?
+  organization String?
+  role         String?
+  notes        String?
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  projectPeople ProjectPerson[]
+
+  @@map("persons")
+}
+
+model ProjectPerson {
+  id            String   @id @default(uuid()) @db.Uuid
+  projectId     String   @map("project_id") @db.Uuid
+  personId      String   @map("person_id") @db.Uuid
+  role          String?
+  notes         String?
+  autoExtracted Boolean  @default(false) @map("auto_extracted")
+  addedAt       DateTime @default(now()) @map("added_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  person  Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, personId])
+  @@map("project_persons")
 }

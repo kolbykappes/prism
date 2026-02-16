@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { TabContainer } from "@/components/project-detail/tab-container";
 import { UploadDialog } from "@/components/project-detail/upload-dialog";
+import { OtterImportDialog } from "@/components/project-detail/otter-import-dialog";
 import { ProcessingIndicator } from "@/components/project-detail/processing-indicator";
 import { ProjectOverviewEditor } from "@/components/project-detail/project-overview-editor";
 
@@ -26,6 +27,10 @@ export default async function ProjectDetailPage({
         include: {
           sourceFile: { select: { filename: true, uploadedBy: true } },
         },
+      },
+      projectPeople: {
+        orderBy: { addedAt: "desc" },
+        include: { person: true },
       },
     },
   });
@@ -55,6 +60,21 @@ export default async function ProjectDetailPage({
     uploadedBy: f.uploadedBy,
   }));
 
+  const people = project.projectPeople.map((pp) => ({
+    id: pp.id,
+    role: pp.role,
+    notes: pp.notes,
+    autoExtracted: pp.autoExtracted,
+    addedAt: pp.addedAt.toISOString(),
+    person: {
+      id: pp.person.id,
+      name: pp.person.name,
+      email: pp.person.email,
+      organization: pp.person.organization,
+      role: pp.person.role,
+    },
+  }));
+
   return (
     <div>
       <div className="mb-2">
@@ -82,7 +102,10 @@ export default async function ProjectDetailPage({
             </Link>
           </p>
         </div>
-        <UploadDialog projectId={id} />
+        <div className="flex gap-2">
+          <OtterImportDialog projectId={id} />
+          <UploadDialog projectId={id} />
+        </div>
       </div>
 
       <ProjectOverviewEditor
@@ -104,6 +127,7 @@ export default async function ProjectDetailPage({
         summaries={summaries}
         files={files}
         projectId={id}
+        people={people}
       />
     </div>
   );
