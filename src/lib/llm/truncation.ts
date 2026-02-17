@@ -1,4 +1,4 @@
-const MAX_CHARS = 720_000; // ~180K tokens at 4 chars/token
+const MAX_CHARS = 400_000; // ~100K tokens at 4 chars/token
 
 export interface TruncationResult {
   text: string;

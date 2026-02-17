@@ -8,6 +8,7 @@ export async function generateSummary(prompt: string): Promise<{
   content: string;
   model: string;
   inputTokens: number;
+  outputTokens: number;
 }> {
   const response = await anthropic.messages.create({
     model: MODEL,
@@ -24,5 +25,6 @@ export async function generateSummary(prompt: string): Promise<{
     content: textBlock.text,
     model: response.model,
     inputTokens: response.usage.input_tokens,
+    outputTokens: response.usage.output_tokens,
   };
 }

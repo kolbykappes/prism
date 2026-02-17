@@ -15,9 +15,15 @@ export function Header() {
         <nav className="ml-auto flex items-center gap-4">
           <Link
             href="/prompts"
-            className="text-sm text-primary-foreground/70 hover:text-primary-foreground"
+            className="cursor-pointer text-sm text-primary-foreground/70 hover:text-primary-foreground"
           >
             Prompts
+          </Link>
+          <Link
+            href="/admin"
+            className="cursor-pointer text-sm text-primary-foreground/70 hover:text-primary-foreground"
+          >
+            Admin
           </Link>
         </nav>
       </div>

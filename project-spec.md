@@ -123,6 +123,20 @@ PRISM is a web application that ingests source materials (transcripts, documents
 | created_at | timestamp | |
 | updated_at | timestamp | |
 
+#### LLM Usage Logs
+
+| Field | Type | Notes |
+|-------|------|-------|
+| id | UUID | PK |
+| source_file_id | UUID | Nullable FK → Source Files |
+| project_id | UUID | Nullable FK → Projects |
+| model | string | e.g. "claude-sonnet-4-20250514" |
+| input_tokens | integer | Tokens sent to LLM |
+| output_tokens | integer | Tokens received from LLM |
+| total_tokens | integer | input + output |
+| duration_ms | integer | Nullable, API call duration |
+| created_at | timestamp | |
+
 #### Project Persons (join table)
 
 | Field | Type | Notes |
@@ -228,7 +242,18 @@ This is the primary workspace. It has **four tabs**:
 - Chronological list of all actions on the project
 - Shows: action type, filename/person name, user, timestamp
 
-#### 7. Prompt Templates (`/prompts`)
+#### 7. Admin Panel (`/admin`)
+
+- Protected by a simple password login (static password "abc123")
+- Middleware redirects unauthenticated users to `/admin/login`
+- Session stored as an `admin_session` cookie (24-hour expiry)
+- **Token Usage page** (default): table showing all LLM API calls
+  - Columns: Project, File, Date/Time, Model, Input Tokens, Output Tokens, Total Tokens, Duration
+  - Sorted by most recent first
+  - Summary stats at top (total calls, total tokens)
+- Nav link "Admin" visible in the top header
+
+#### 8. Prompt Templates (`/prompts`)
 
 - CRUD interface for managing LLM prompt templates
 - One template can be marked as default
@@ -347,10 +372,15 @@ The `{{people}}` placeholder is replaced with a `PROJECT PEOPLE:` section listin
 
 - **Model**: Claude Sonnet 4 — 200K context window
 - **Budget**: Reserve 4,000 tokens for system prompt + output
-- **Max input**: ~180,000 tokens (conservative estimate)
-- **Character estimate**: ~720,000 characters of source text
+- **Max input**: ~100,000 tokens (per-file limit)
+- **Character estimate**: ~400,000 characters of source text
 - **Truncation strategy**: truncate from the end, preserve the beginning of the document
 - **Token counting**: Simple character-based estimate (4 chars ≈ 1 token)
+
+#### Token Usage Tracking
+
+- Every Claude API call logs an `LlmUsageLog` record with input tokens, output tokens, total tokens, model, duration, source file, and project
+- Visible via the Admin panel (see below)
 
 ---
 
@@ -414,6 +444,13 @@ All API routes are Next.js App Router route handlers (`/app/api/...`).
 | PUT | `/api/prompt-templates/[id]` | Update template |
 | DELETE | `/api/prompt-templates/[id]` | Delete template |
 
+#### Admin
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| POST | `/api/admin/login` | Authenticate with password, set session cookie |
+| GET | `/api/admin/usage` | List LLM usage logs (most recent 200) |
+
 #### Ingestion Webhooks
 
 | Method | Route | Description |
@@ -426,8 +463,9 @@ All API routes are Next.js App Router route handlers (`/app/api/...`).
 ### Error Handling
 
 - **Upload errors**: Toast notification with error message, file not stored
-- **Processing failures**: Status set to `failed` with error message visible in UI, retry button available
+- **Processing failures**: Status set to `failed` with error message visible in UI, retry button available. Inngest `onFailure` handler ensures failed jobs are always marked as `failed` (never stuck on "processing")
 - **LLM API errors**: Catch rate limits, timeouts, and API errors; store in error_message; auto-retry once via Inngest retry policy
+- **Polling timeout**: Client-side polling stops after 5 minutes regardless of job status to prevent infinite network requests
 - **Truncation**: Not an error — handled gracefully with warning banner on the summary
 - **Webhook auth failures**: Return 401, do not process
 

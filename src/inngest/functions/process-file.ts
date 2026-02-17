@@ -12,6 +12,36 @@ export const processFile = inngest.createFunction(
   {
     id: "process-file",
     retries: 1,
+    onFailure: async ({ error, event }) => {
+      const sourceFileId = event.data.event.data.sourceFileId;
+      const errorMsg =
+        error instanceof Error ? error.message : "Unknown error";
+      logger.error("process-file.failed", { sourceFileId, error: errorMsg });
+
+      try {
+        await prisma.markdownSummary.update({
+          where: { sourceFileId },
+          data: {
+            processingStatus: "failed",
+            errorMessage: errorMsg,
+          },
+        });
+
+        await prisma.processingJob.updateMany({
+          where: { sourceFileId, status: "processing" },
+          data: {
+            status: "failed",
+            completedAt: new Date(),
+            errorMessage: errorMsg,
+          },
+        });
+      } catch (updateError) {
+        logger.error("process-file.failure-handler.failed", {
+          sourceFileId,
+          error: updateError,
+        });
+      }
+    },
   },
   { event: "file/uploaded" },
   async ({ event, step }) => {
@@ -86,7 +116,23 @@ export const processFile = inngest.createFunction(
         peopleCount: projectPeople.length,
       });
 
-      const { content, model, inputTokens } = await generateSummary(prompt);
+      const startMs = Date.now();
+      const { content, model, inputTokens, outputTokens } =
+        await generateSummary(prompt);
+      const durationMs = Date.now() - startMs;
+
+      // Log token usage
+      await prisma.llmUsageLog.create({
+        data: {
+          sourceFileId,
+          projectId: sourceFile.projectId,
+          model,
+          inputTokens,
+          outputTokens,
+          totalTokens: inputTokens + outputTokens,
+          durationMs,
+        },
+      });
 
       // Prepend truncation warning if needed
       let finalContent = content;
@@ -98,6 +144,7 @@ export const processFile = inngest.createFunction(
         content: finalContent,
         model,
         inputTokens,
+        outputTokens,
         truncated,
         promptTemplateId: defaultTemplate?.id ?? null,
       };

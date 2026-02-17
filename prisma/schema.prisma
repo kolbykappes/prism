@@ -154,6 +154,20 @@ model Person {
   @@map("persons")
 }
 
+model LlmUsageLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  sourceFileId String?  @map("source_file_id") @db.Uuid
+  projectId    String?  @map("project_id") @db.Uuid
+  model        String
+  inputTokens  Int      @map("input_tokens")
+  outputTokens Int      @map("output_tokens")
+  totalTokens  Int      @map("total_tokens")
+  durationMs   Int?     @map("duration_ms")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("llm_usage_logs")
+}
+
 model ProjectPerson {
   id            String   @id @default(uuid()) @db.Uuid
   projectId     String   @map("project_id") @db.Uuid
