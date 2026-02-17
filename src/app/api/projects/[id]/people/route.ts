@@ -69,7 +69,7 @@ export async function POST(
       return errorResponse("This person is already in the project");
     }
 
-    const projectPerson = await prisma.projectPerson.create({
+    await prisma.projectPerson.create({
       data: {
         projectId: id,
         personId: person.id,
@@ -77,6 +77,10 @@ export async function POST(
         notes: notes || null,
         autoExtracted: false,
       },
+    });
+
+    const projectPerson = await prisma.projectPerson.findFirst({
+      where: { projectId: id, personId: person.id },
       include: { person: true },
     });
 

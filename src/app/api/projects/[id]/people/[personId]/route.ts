@@ -34,12 +34,16 @@ export async function PUT(
     });
 
     // Update the ProjectPerson record
-    const updated = await prisma.projectPerson.update({
+    await prisma.projectPerson.update({
       where: { id: projectPerson.id },
       data: {
         ...(role !== undefined ? { role: role || null } : {}),
         ...(notes !== undefined ? { notes: notes || null } : {}),
       },
+    });
+
+    const updated = await prisma.projectPerson.findUnique({
+      where: { id: projectPerson.id },
       include: { person: true },
     });
 
