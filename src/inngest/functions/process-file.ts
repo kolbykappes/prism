@@ -13,9 +13,19 @@ export const processFile = inngest.createFunction(
     id: "process-file",
     retries: 1,
     onFailure: async ({ error, event }) => {
-      const sourceFileId = event.data.event.data.sourceFileId;
+      // Safely extract sourceFileId from the failure event
+      let sourceFileId: string | undefined;
+      try {
+        sourceFileId = event.data.event.data.sourceFileId;
+      } catch {
+        logger.error("process-file.failure-handler.no-source-file-id", {
+          eventData: JSON.stringify(event.data).slice(0, 500),
+        });
+        return;
+      }
+
       const errorMsg =
-        error instanceof Error ? error.message : "Unknown error";
+        error instanceof Error ? error.message : String(error);
       logger.error("process-file.failed", { sourceFileId, error: errorMsg });
 
       try {
@@ -23,7 +33,7 @@ export const processFile = inngest.createFunction(
           where: { sourceFileId },
           data: {
             processingStatus: "failed",
-            errorMessage: errorMsg,
+            errorMessage: errorMsg.slice(0, 1000),
           },
         });
 
@@ -32,11 +42,11 @@ export const processFile = inngest.createFunction(
           data: {
             status: "failed",
             completedAt: new Date(),
-            errorMessage: errorMsg,
+            errorMessage: errorMsg.slice(0, 1000),
           },
         });
       } catch (updateError) {
-        logger.error("process-file.failure-handler.failed", {
+        logger.error("process-file.failure-handler.db-update-failed", {
           sourceFileId,
           error: updateError,
         });
@@ -46,6 +56,7 @@ export const processFile = inngest.createFunction(
   { event: "file/uploaded" },
   async ({ event, step }) => {
     const { sourceFileId } = event.data;
+    logger.info("process-file.started", { sourceFileId });
 
     // Step 1: Update status to processing
     const sourceFile = await step.run("update-status", async () => {
@@ -63,15 +74,39 @@ export const processFile = inngest.createFunction(
         data: { status: "processing", startedAt: new Date() },
       });
 
+      logger.info("process-file.status-updated", {
+        sourceFileId,
+        filename: file.filename,
+        fileType: file.fileType,
+      });
+
       return file;
     });
 
     // Step 2: Extract text from file
     const extractedText = await step.run("extract-text", async () => {
+      logger.info("process-file.extracting-text", {
+        sourceFileId,
+        blobUrl: sourceFile.blobUrl,
+      });
+
       const response = await fetch(sourceFile.blobUrl);
+      if (!response.ok) {
+        throw new Error(
+          `Failed to fetch blob: ${response.status} ${response.statusText}`
+        );
+      }
+
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      return extractText(buffer, sourceFile.fileType);
+      const text = await extractText(buffer, sourceFile.fileType);
+
+      logger.info("process-file.text-extracted", {
+        sourceFileId,
+        textLength: text.length,
+      });
+
+      return text;
     });
 
     // Step 3: Fetch default prompt template, truncate, call Claude
@@ -111,6 +146,7 @@ export const processFile = inngest.createFunction(
       logger.info("process-file.calling-claude", {
         sourceFileId,
         filename: sourceFile.filename,
+        promptLength: prompt.length,
         truncated,
         percentCovered,
         peopleCount: projectPeople.length,
@@ -120,6 +156,14 @@ export const processFile = inngest.createFunction(
       const { content, model, inputTokens, outputTokens } =
         await generateSummary(prompt);
       const durationMs = Date.now() - startMs;
+
+      logger.info("process-file.claude-responded", {
+        sourceFileId,
+        model,
+        inputTokens,
+        outputTokens,
+        durationMs,
+      });
 
       // Log token usage
       await prisma.llmUsageLog.create({
@@ -152,6 +196,8 @@ export const processFile = inngest.createFunction(
 
     // Step 4: Store result
     await step.run("store-result", async () => {
+      logger.info("process-file.storing-result", { sourceFileId });
+
       // Upload summary markdown to blob
       const blobPath = `projects/${sourceFile.projectId}/summaries/${sourceFile.id}.md`;
       const blobUrl = await uploadBlob(

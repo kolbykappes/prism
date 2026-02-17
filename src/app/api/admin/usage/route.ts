@@ -1,9 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
+import { isAdminAuthenticated } from "@/lib/admin-auth";
 import { logger } from "@/lib/logger";
 
 export async function GET() {
   try {
+    const authenticated = await isAdminAuthenticated();
+    if (!authenticated) {
+      return errorResponse("Unauthorized", 401);
+    }
+
     const logs = await prisma.llmUsageLog.findMany({
       orderBy: { createdAt: "desc" },
       take: 200,

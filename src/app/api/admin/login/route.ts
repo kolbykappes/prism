@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const ADMIN_PASSWORD = "abc123";
+import { verifyAdminPassword, COOKIE_NAME, COOKIE_VALUE } from "@/lib/admin-auth";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const { password } = body;
 
-  if (password !== ADMIN_PASSWORD) {
+  if (!verifyAdminPassword(password)) {
     return NextResponse.json({ error: "Invalid password" }, { status: 401 });
   }
 
   const response = NextResponse.json({ success: true });
-  response.cookies.set("admin_session", "authenticated", {
+  response.cookies.set(COOKIE_NAME, COOKIE_VALUE, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
