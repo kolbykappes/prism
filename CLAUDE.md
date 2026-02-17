@@ -17,5 +17,6 @@
 - Follow the standards in `docs/logging-standards.md` for all server and client error handling, logging patterns, and versioning.
 
 ## Git Workflow
-- After completing a set of changes, automatically commit and push without asking. Use a concise, descriptive commit message.
+- After completing a set of changes, automatically commit but do NOT push. Wait for the user to say when to push.
+- Use concise, descriptive commit messages.
 - Only pause to ask if something is ambiguous or risky (e.g., force push, destructive action).

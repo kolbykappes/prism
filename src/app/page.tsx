@@ -3,7 +3,7 @@ import { ProjectCard } from "@/components/projects/project-card";
 import { CreateProjectDialog } from "@/components/projects/create-project-dialog";
 import { EmptyState } from "@/components/layout/empty-state";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30; // seconds — cache page, revalidate in background
 
 export default async function HomePage() {
   const projects = await prisma.project.findMany({

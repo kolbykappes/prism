@@ -7,7 +7,7 @@ import { OtterImportDialog } from "@/components/project-detail/otter-import-dial
 import { ProcessingIndicator } from "@/components/project-detail/processing-indicator";
 import { ProjectOverviewEditor } from "@/components/project-detail/project-overview-editor";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 15; // seconds — cache page, revalidate in background
 
 export default async function ProjectDetailPage({
   params,
