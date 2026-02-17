@@ -7,5 +7,8 @@
 ## Environment
 - Development is on **Windows**. Use Windows-compatible commands and path syntax (backslashes, no Unix-only tools). When using bash shell, prefer forward slashes and Unix-style redirects only if the shell supports it (e.g., Git Bash).
 
+## Deployment & Setup
+- See `docs/deployment-guide.md` for environment variables, local dev setup, and Vercel deployment.
+
 ## Logging & Error Handling
 - Follow the standards in `docs/logging-standards.md` for all server and client error handling, logging patterns, and versioning.
