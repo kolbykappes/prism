@@ -121,6 +121,7 @@ export default async function ProjectDetailPage({
               s.processingStatus === "processing"
           ).length
         }
+        projectId={id}
       />
 
       <TabContainer
