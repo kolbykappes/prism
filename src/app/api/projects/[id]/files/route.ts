@@ -70,62 +70,57 @@ export async function POST(
     const blobPath = `projects/${id}/${Date.now()}-${file.name}`;
     const blobUrl = await uploadBlob(blobPath, buffer, file.type);
 
-    // Create records in a transaction
+    // Create records sequentially (Neon HTTP adapter does not support transactions)
     const fileType = extensionToFileType(ext) as FileType;
 
-    const result = await prisma.$transaction(async (tx) => {
-      const sourceFile = await tx.sourceFile.create({
-        data: {
-          projectId: id,
-          filename: file.name,
-          fileType,
-          fileSize: file.size,
-          blobUrl,
-        },
-      });
+    const sourceFile = await prisma.sourceFile.create({
+      data: {
+        projectId: id,
+        filename: file.name,
+        fileType,
+        fileSize: file.size,
+        blobUrl,
+      },
+    });
 
-      const summary = await tx.markdownSummary.create({
-        data: {
-          sourceFileId: sourceFile.id,
-          projectId: id,
-          processingStatus: "queued",
-        },
-      });
+    await prisma.markdownSummary.create({
+      data: {
+        sourceFileId: sourceFile.id,
+        projectId: id,
+        processingStatus: "queued",
+      },
+    });
 
-      const job = await tx.processingJob.create({
-        data: {
-          sourceFileId: sourceFile.id,
-          status: "queued",
-        },
-      });
+    await prisma.processingJob.create({
+      data: {
+        sourceFileId: sourceFile.id,
+        status: "queued",
+      },
+    });
 
-      // Touch project updatedAt
-      await tx.project.update({
-        where: { id },
-        data: { updatedAt: new Date() },
-      });
-
-      return { sourceFile, summary, job };
+    await prisma.project.update({
+      where: { id },
+      data: { updatedAt: new Date() },
     });
 
     // Fire Inngest event for background processing (non-fatal)
     try {
       await inngest.send({
         name: "file/uploaded",
-        data: { sourceFileId: result.sourceFile.id },
+        data: { sourceFileId: sourceFile.id },
       });
     } catch (error) {
-      logger.warn("inngest.send.failed", { sourceFileId: result.sourceFile.id, error });
+      logger.warn("inngest.send.failed", { sourceFileId: sourceFile.id, error });
     }
 
     logActivity({
       projectId: id,
       action: "uploaded",
-      sourceFileId: result.sourceFile.id,
+      sourceFileId: sourceFile.id,
       metadata: { filename: file.name },
     });
 
-    return jsonResponse(result.sourceFile, 201);
+    return jsonResponse(sourceFile, 201);
   } catch (error) {
     logger.error("files.upload.failed", { error });
     return errorResponse("Failed to upload file", 500, error instanceof Error ? error.message : "Unknown error");

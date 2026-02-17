@@ -10,5 +10,8 @@
 ## Deployment & Setup
 - See `docs/deployment-guide.md` for environment variables, local dev setup, and Vercel deployment.
 
+## UX & Design
+- Follow the patterns in `docs/ux-guide.md` for colors, icons, components, spacing, and anti-patterns.
+
 ## Logging & Error Handling
 - Follow the standards in `docs/logging-standards.md` for all server and client error handling, logging patterns, and versioning.

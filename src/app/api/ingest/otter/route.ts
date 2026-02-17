@@ -77,63 +77,59 @@ export async function POST(request: NextRequest) {
       "text/plain"
     );
 
-    // Create records in a transaction
-    const result = await prisma.$transaction(async (tx) => {
-      const sourceFile = await tx.sourceFile.create({
-        data: {
-          projectId,
-          filename,
-          fileType: "txt",
-          fileSize: buffer.length,
-          blobUrl,
-          uploadedBy: "Otter.ai",
-          ingestSource: "otter",
-        },
-      });
+    // Create records sequentially (Neon HTTP adapter does not support transactions)
+    const sourceFile = await prisma.sourceFile.create({
+      data: {
+        projectId,
+        filename,
+        fileType: "txt",
+        fileSize: buffer.length,
+        blobUrl,
+        uploadedBy: "Otter.ai",
+        ingestSource: "otter",
+      },
+    });
 
-      await tx.markdownSummary.create({
-        data: {
-          sourceFileId: sourceFile.id,
-          projectId,
-          processingStatus: "queued",
-        },
-      });
+    await prisma.markdownSummary.create({
+      data: {
+        sourceFileId: sourceFile.id,
+        projectId,
+        processingStatus: "queued",
+      },
+    });
 
-      await tx.processingJob.create({
-        data: {
-          sourceFileId: sourceFile.id,
-          status: "queued",
-        },
-      });
+    await prisma.processingJob.create({
+      data: {
+        sourceFileId: sourceFile.id,
+        status: "queued",
+      },
+    });
 
-      await tx.project.update({
-        where: { id: projectId },
-        data: { updatedAt: new Date() },
-      });
-
-      return sourceFile;
+    await prisma.project.update({
+      where: { id: projectId },
+      data: { updatedAt: new Date() },
     });
 
     // Fire Inngest event
     try {
       await inngest.send({
         name: "file/uploaded",
-        data: { sourceFileId: result.id },
+        data: { sourceFileId: sourceFile.id },
       });
     } catch (error) {
-      logger.warn("inngest.send.failed", { sourceFileId: result.id, error });
+      logger.warn("inngest.send.failed", { sourceFileId: sourceFile.id, error });
     }
 
     logActivity({
       projectId,
       action: "otter_ingested",
-      sourceFileId: result.id,
+      sourceFileId: sourceFile.id,
       metadata: { title },
     });
 
-    logger.info("otter.ingested", { projectId, sourceFileId: result.id, title });
+    logger.info("otter.ingested", { projectId, sourceFileId: sourceFile.id, title });
 
-    return jsonResponse({ success: true, sourceFileId: result.id }, 201);
+    return jsonResponse({ success: true, sourceFileId: sourceFile.id }, 201);
   } catch (error) {
     logger.error("otter.ingest.failed", { error });
     return errorResponse("Failed to ingest transcript", 500, error instanceof Error ? error.message : "Unknown error");
