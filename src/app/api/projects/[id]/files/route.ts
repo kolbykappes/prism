@@ -6,6 +6,7 @@ import { validateFileType, validateFileSize, extensionToFileType } from "@/lib/v
 import { FileType } from "@/generated/prisma";
 import { inngest } from "@/inngest/client";
 import { logActivity } from "@/lib/activity";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 
@@ -26,8 +27,8 @@ export async function GET(
 
     return jsonResponse(files);
   } catch (error) {
-    console.error("Failed to fetch files:", error);
-    return errorResponse("Failed to fetch files", 500);
+    logger.error("files.fetch.failed", { error });
+    return errorResponse("Failed to fetch files", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }
 
@@ -114,7 +115,7 @@ export async function POST(
         data: { sourceFileId: result.sourceFile.id },
       });
     } catch (error) {
-      console.error("Failed to send Inngest event:", error);
+      logger.warn("inngest.send.failed", { sourceFileId: result.sourceFile.id, error });
     }
 
     logActivity({
@@ -126,7 +127,7 @@ export async function POST(
 
     return jsonResponse(result.sourceFile, 201);
   } catch (error) {
-    console.error("Failed to upload file:", error);
-    return errorResponse("Failed to upload file", 500);
+    logger.error("files.upload.failed", { error });
+    return errorResponse("Failed to upload file", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }

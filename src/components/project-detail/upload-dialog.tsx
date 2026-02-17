@@ -58,7 +58,8 @@ export function UploadDialog({ projectId }: { projectId: string }) {
 
       if (!res.ok) {
         const data = await res.json();
-        toast.error(data.error || "Upload failed");
+        console.error("[upload]", data);
+        toast.error(data.detail || data.error || "Upload failed");
         return;
       }
 
@@ -66,7 +67,8 @@ export function UploadDialog({ projectId }: { projectId: string }) {
       setOpen(false);
       setFile(null);
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("[upload]", error);
       toast.error("Upload failed");
     } finally {
       setUploading(false);

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   _request: NextRequest,
@@ -16,8 +17,8 @@ export async function GET(
 
     return jsonResponse(template);
   } catch (error) {
-    console.error("Failed to fetch prompt template:", error);
-    return errorResponse("Failed to fetch prompt template", 500);
+    logger.error("template.fetch.failed", { error });
+    return errorResponse("Failed to fetch prompt template", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }
 
@@ -54,8 +55,8 @@ export async function PUT(
 
     return jsonResponse(updated);
   } catch (error) {
-    console.error("Failed to update prompt template:", error);
-    return errorResponse("Failed to update prompt template", 500);
+    logger.error("template.update.failed", { error });
+    return errorResponse("Failed to update prompt template", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }
 
@@ -79,7 +80,7 @@ export async function DELETE(
 
     return jsonResponse({ success: true });
   } catch (error) {
-    console.error("Failed to delete prompt template:", error);
-    return errorResponse("Failed to delete prompt template", 500);
+    logger.error("template.delete.failed", { error });
+    return errorResponse("Failed to delete prompt template", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }

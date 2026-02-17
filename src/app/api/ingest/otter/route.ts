@@ -5,6 +5,7 @@ import { uploadBlob } from "@/lib/blob";
 import { inngest } from "@/inngest/client";
 import { logActivity } from "@/lib/activity";
 import { upsertPersonInProject } from "@/lib/people-extraction";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -120,7 +121,7 @@ export async function POST(request: NextRequest) {
         data: { sourceFileId: result.id },
       });
     } catch (error) {
-      console.error("Failed to send Inngest event:", error);
+      logger.warn("inngest.send.failed", { sourceFileId: result.id, error });
     }
 
     logActivity({
@@ -130,9 +131,11 @@ export async function POST(request: NextRequest) {
       metadata: { title },
     });
 
+    logger.info("otter.ingested", { projectId, sourceFileId: result.id, title });
+
     return jsonResponse({ success: true, sourceFileId: result.id }, 201);
   } catch (error) {
-    console.error("Failed to ingest Otter transcript:", error);
-    return errorResponse("Failed to ingest transcript", 500);
+    logger.error("otter.ingest.failed", { error });
+    return errorResponse("Failed to ingest transcript", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }

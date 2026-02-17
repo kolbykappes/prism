@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { ActivityAction, Prisma } from "@/generated/prisma";
+import { logger } from "@/lib/logger";
 
 export function logActivity(params: {
   projectId: string;
@@ -20,5 +21,5 @@ export function logActivity(params: {
         metadata: metadata ?? Prisma.JsonNull,
       },
     })
-    .catch((err) => console.error("Failed to log activity:", err));
+    .catch((err) => logger.error("activity.log.failed", { projectId, action, error: err }));
 }

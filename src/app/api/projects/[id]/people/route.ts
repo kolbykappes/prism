@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
 import { logActivity } from "@/lib/activity";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   _request: NextRequest,
@@ -18,8 +19,8 @@ export async function GET(
 
     return jsonResponse(projectPeople);
   } catch (error) {
-    console.error("Failed to fetch people:", error);
-    return errorResponse("Failed to fetch people", 500);
+    logger.error("people.fetch.failed", { error });
+    return errorResponse("Failed to fetch people", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }
 
@@ -87,7 +88,7 @@ export async function POST(
 
     return jsonResponse(projectPerson, 201);
   } catch (error) {
-    console.error("Failed to add person:", error);
-    return errorResponse("Failed to add person", 500);
+    logger.error("people.add.failed", { error });
+    return errorResponse("Failed to add person", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }

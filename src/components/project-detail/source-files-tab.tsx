@@ -50,12 +50,15 @@ export function SourceFilesTab({
         { method: "DELETE" }
       );
       if (!res.ok) {
-        toast.error("Failed to delete file");
+        const data = await res.json().catch(() => ({}));
+        console.error("[file-delete]", data);
+        toast.error(data.detail || data.error || "Failed to delete file");
         return;
       }
       toast.success("File deleted");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("[file-delete]", error);
       toast.error("Failed to delete file");
     }
   }
@@ -67,12 +70,15 @@ export function SourceFilesTab({
         { method: "POST" }
       );
       if (!res.ok) {
-        toast.error("Failed to reprocess");
+        const data = await res.json().catch(() => ({}));
+        console.error("[file-reprocess]", data);
+        toast.error(data.detail || data.error || "Failed to reprocess");
         return;
       }
       toast.success("Re-processing started");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("[file-reprocess]", error);
       toast.error("Failed to reprocess");
     }
   }

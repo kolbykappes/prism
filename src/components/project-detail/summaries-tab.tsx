@@ -48,12 +48,14 @@ export function SummariesTab({
       );
       if (!res.ok) {
         const data = await res.json();
-        toast.error(data.error || "Failed to reprocess");
+        console.error("[summary-reprocess]", data);
+        toast.error(data.detail || data.error || "Failed to reprocess");
         return;
       }
       toast.success("Re-processing started");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("[summary-reprocess]", error);
       toast.error("Failed to reprocess");
     }
   }

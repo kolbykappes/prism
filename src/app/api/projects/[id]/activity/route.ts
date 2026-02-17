@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
+import { logger } from "@/lib/logger";
 
 export async function GET(
   _request: NextRequest,
@@ -22,7 +23,7 @@ export async function GET(
 
     return jsonResponse(logs);
   } catch (error) {
-    console.error("Failed to fetch activity logs:", error);
-    return errorResponse("Failed to fetch activity logs", 500);
+    logger.error("activity.fetch.failed", { error });
+    return errorResponse("Failed to fetch activity logs", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }

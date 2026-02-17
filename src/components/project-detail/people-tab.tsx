@@ -97,14 +97,16 @@ export function PeopleTab({
       });
       if (!res.ok) {
         const data = await res.json();
-        toast.error(data.error || "Failed to add person");
+        console.error("[people-add]", data);
+        toast.error(data.detail || data.error || "Failed to add person");
         return;
       }
       toast.success("Person added");
       setAddOpen(false);
       setForm(emptyForm);
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("[people-add]", error);
       toast.error("Failed to add person");
     } finally {
       setSubmitting(false);
@@ -124,7 +126,9 @@ export function PeopleTab({
         }
       );
       if (!res.ok) {
-        toast.error("Failed to update person");
+        const data = await res.json().catch(() => ({}));
+        console.error("[people-edit]", data);
+        toast.error(data.detail || data.error || "Failed to update person");
         return;
       }
       toast.success("Person updated");
@@ -132,7 +136,8 @@ export function PeopleTab({
       setEditingPerson(null);
       setForm(emptyForm);
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("[people-edit]", error);
       toast.error("Failed to update person");
     } finally {
       setSubmitting(false);
@@ -147,12 +152,15 @@ export function PeopleTab({
         { method: "DELETE" }
       );
       if (!res.ok) {
-        toast.error("Failed to remove person");
+        const data = await res.json().catch(() => ({}));
+        console.error("[people-remove]", data);
+        toast.error(data.detail || data.error || "Failed to remove person");
         return;
       }
       toast.success("Person removed");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("[people-remove]", error);
       toast.error("Failed to remove person");
     }
   }

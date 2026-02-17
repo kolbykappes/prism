@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
+import { logger } from "@/lib/logger";
 
 export async function GET() {
   try {
@@ -9,8 +10,8 @@ export async function GET() {
     });
     return jsonResponse(templates);
   } catch (error) {
-    console.error("Failed to fetch prompt templates:", error);
-    return errorResponse("Failed to fetch prompt templates", 500);
+    logger.error("templates.fetch.failed", { error });
+    return errorResponse("Failed to fetch prompt templates", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }
 
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     return jsonResponse(template, 201);
   } catch (error) {
-    console.error("Failed to create prompt template:", error);
-    return errorResponse("Failed to create prompt template", 500);
+    logger.error("templates.create.failed", { error });
+    return errorResponse("Failed to create prompt template", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }

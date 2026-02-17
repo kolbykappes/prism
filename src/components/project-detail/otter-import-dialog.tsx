@@ -66,7 +66,8 @@ export function OtterImportDialog({ projectId }: { projectId: string }) {
 
       if (!res.ok) {
         const data = await res.json();
-        toast.error(data.error || "Failed to import transcript");
+        console.error("[otter-import]", data);
+        toast.error(data.detail || data.error || "Failed to import transcript");
         return;
       }
 
@@ -74,7 +75,8 @@ export function OtterImportDialog({ projectId }: { projectId: string }) {
       setOpen(false);
       reset();
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("[otter-import]", error);
       toast.error("Failed to import transcript");
     } finally {
       setSubmitting(false);

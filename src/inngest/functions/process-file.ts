@@ -6,6 +6,7 @@ import { buildPrompt } from "@/lib/llm/prompt-template";
 import { generateSummary } from "@/lib/llm/claude";
 import { uploadBlob } from "@/lib/blob";
 import { logActivity } from "@/lib/activity";
+import { logger } from "@/lib/logger";
 
 export const processFile = inngest.createFunction(
   {
@@ -77,6 +78,14 @@ export const processFile = inngest.createFunction(
         peopleContext
       );
 
+      logger.info("process-file.calling-claude", {
+        sourceFileId,
+        filename: sourceFile.filename,
+        truncated,
+        percentCovered,
+        peopleCount: projectPeople.length,
+      });
+
       const { content, model, inputTokens } = await generateSummary(prompt);
 
       // Prepend truncation warning if needed
@@ -139,6 +148,8 @@ export const processFile = inngest.createFunction(
       sourceFileId,
       metadata: { filename: sourceFile.filename },
     });
+
+    logger.info("process-file.completed", { sourceFileId, filename: sourceFile.filename });
 
     return { success: true, sourceFileId };
   }

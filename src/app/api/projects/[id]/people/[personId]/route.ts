@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
 import { logActivity } from "@/lib/activity";
+import { logger } from "@/lib/logger";
 
 export async function PUT(
   request: NextRequest,
@@ -44,8 +45,8 @@ export async function PUT(
 
     return jsonResponse(updated);
   } catch (error) {
-    console.error("Failed to update person:", error);
-    return errorResponse("Failed to update person", 500);
+    logger.error("people.update.failed", { error });
+    return errorResponse("Failed to update person", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }
 
@@ -77,7 +78,7 @@ export async function DELETE(
 
     return jsonResponse({ success: true });
   } catch (error) {
-    console.error("Failed to remove person:", error);
-    return errorResponse("Failed to remove person", 500);
+    logger.error("people.remove.failed", { error });
+    return errorResponse("Failed to remove person", 500, error instanceof Error ? error.message : "Unknown error");
   }
 }
