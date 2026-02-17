@@ -165,62 +165,60 @@ export function PeopleTab({
     }
   }
 
-  function PersonFormFields({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) {
-    return (
-      <div className="space-y-4">
-        <div>
-          <Label htmlFor="name">Name *</Label>
-          <Input
-            id="name"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            placeholder="Full name"
-          />
-        </div>
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            placeholder="email@example.com"
-          />
-        </div>
-        <div>
-          <Label htmlFor="organization">Organization</Label>
-          <Input
-            id="organization"
-            value={form.organization}
-            onChange={(e) => setForm({ ...form, organization: e.target.value })}
-            placeholder="Company or team"
-          />
-        </div>
-        <div>
-          <Label htmlFor="role">Role</Label>
-          <Input
-            id="role"
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-            placeholder="e.g. Project Manager, Engineer"
-          />
-        </div>
-        <div>
-          <Label htmlFor="notes">Notes</Label>
-          <Textarea
-            id="notes"
-            value={form.notes}
-            onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            placeholder="Any additional context..."
-            rows={2}
-          />
-        </div>
-        <Button onClick={onSubmit} disabled={submitting}>
-          {submitting ? "Saving..." : submitLabel}
-        </Button>
+  const formFields = (onSubmit: () => void, submitLabel: string) => (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor="name">Name *</Label>
+        <Input
+          id="name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          placeholder="Full name"
+        />
       </div>
-    );
-  }
+      <div>
+        <Label htmlFor="email">Email</Label>
+        <Input
+          id="email"
+          type="email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          placeholder="email@example.com"
+        />
+      </div>
+      <div>
+        <Label htmlFor="organization">Organization</Label>
+        <Input
+          id="organization"
+          value={form.organization}
+          onChange={(e) => setForm({ ...form, organization: e.target.value })}
+          placeholder="Company or team"
+        />
+      </div>
+      <div>
+        <Label htmlFor="role">Role</Label>
+        <Input
+          id="role"
+          value={form.role}
+          onChange={(e) => setForm({ ...form, role: e.target.value })}
+          placeholder="e.g. Project Manager, Engineer"
+        />
+      </div>
+      <div>
+        <Label htmlFor="notes">Notes</Label>
+        <Textarea
+          id="notes"
+          value={form.notes}
+          onChange={(e) => setForm({ ...form, notes: e.target.value })}
+          placeholder="Any additional context..."
+          rows={2}
+        />
+      </div>
+      <Button onClick={onSubmit} disabled={submitting}>
+        {submitting ? "Saving..." : submitLabel}
+      </Button>
+    </div>
+  );
 
   if (people.length === 0) {
     return (
@@ -234,7 +232,7 @@ export function PeopleTab({
               <DialogHeader>
                 <DialogTitle>Add Person</DialogTitle>
               </DialogHeader>
-              <PersonFormFields onSubmit={handleAdd} submitLabel="Add Person" />
+              {formFields(handleAdd, "Add Person")}
             </DialogContent>
           </Dialog>
         </div>
@@ -257,7 +255,7 @@ export function PeopleTab({
             <DialogHeader>
               <DialogTitle>Add Person</DialogTitle>
             </DialogHeader>
-            <PersonFormFields onSubmit={handleAdd} submitLabel="Add Person" />
+            {formFields(handleAdd, "Add Person")}
           </DialogContent>
         </Dialog>
       </div>
@@ -317,7 +315,7 @@ export function PeopleTab({
           <DialogHeader>
             <DialogTitle>Edit Person</DialogTitle>
           </DialogHeader>
-          <PersonFormFields onSubmit={handleEdit} submitLabel="Save Changes" />
+          {formFields(handleEdit, "Save Changes")}
         </DialogContent>
       </Dialog>
     </div>
