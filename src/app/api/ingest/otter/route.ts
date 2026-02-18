@@ -1,14 +1,14 @@
-import { NextRequest } from "next/server";
+import { NextRequest, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
 import { uploadBlob } from "@/lib/blob";
-import { inngest } from "@/inngest/client";
+import { processFile } from "@/lib/process-file";
 import { logActivity } from "@/lib/activity";
 import { upsertPersonInProject } from "@/lib/people-extraction";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(request: NextRequest) {
   try {
@@ -110,15 +110,7 @@ export async function POST(request: NextRequest) {
       data: { updatedAt: new Date() },
     });
 
-    // Fire Inngest event
-    try {
-      await inngest.send({
-        name: "file/uploaded",
-        data: { sourceFileId: sourceFile.id },
-      });
-    } catch (error) {
-      logger.warn("inngest.send.failed", { sourceFileId: sourceFile.id, error });
-    }
+    after(() => processFile(sourceFile.id));
 
     logActivity({
       projectId,
