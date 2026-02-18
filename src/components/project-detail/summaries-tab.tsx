@@ -21,6 +21,7 @@ interface Summary {
   content: string | null;
   generatedAt: string | null;
   processingStatus: string;
+  errorMessage: string | null;
   tokenCount: number | null;
   truncated: boolean;
   sourceFile: {
@@ -99,6 +100,9 @@ export function SummariesTab({
             </TableCell>
             <TableCell>
               <StatusBadge status={summary.processingStatus} />
+              {summary.processingStatus === "failed" && summary.errorMessage && (
+                <p className="mt-1 text-xs text-destructive font-mono break-all">{summary.errorMessage}</p>
+              )}
             </TableCell>
             <TableCell>{summary.sourceFile.uploadedBy ?? "-"}</TableCell>
             <TableCell>

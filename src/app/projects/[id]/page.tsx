@@ -46,6 +46,7 @@ export default async function ProjectDetailPage({
     content: s.content,
     generatedAt: s.generatedAt?.toISOString() ?? null,
     processingStatus: s.processingStatus,
+    errorMessage: s.errorMessage ?? null,
     tokenCount: s.tokenCount,
     truncated: s.truncated,
     sourceFile: s.sourceFile,
