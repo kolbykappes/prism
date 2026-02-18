@@ -6,6 +6,7 @@ import { UploadDialog } from "@/components/project-detail/upload-dialog";
 import { OtterImportDialog } from "@/components/project-detail/otter-import-dialog";
 import { ProcessingIndicator } from "@/components/project-detail/processing-indicator";
 import { ProjectOverviewEditor } from "@/components/project-detail/project-overview-editor";
+import { EditProjectDialog } from "@/components/project-detail/edit-project-dialog";
 
 export const revalidate = 15; // seconds — cache page, revalidate in background
 
@@ -87,7 +88,14 @@ export default async function ProjectDetailPage({
       </div>
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-3xl font-bold">{project.name}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-3xl font-bold">{project.name}</h1>
+            <EditProjectDialog
+              projectId={id}
+              name={project.name}
+              description={project.description ?? null}
+            />
+          </div>
           {project.description && (
             <p className="mt-1 text-muted-foreground">{project.description}</p>
           )}

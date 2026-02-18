@@ -93,66 +93,72 @@ export function SourceFilesTab({
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Filename</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Size</TableHead>
-          <TableHead>Uploaded By</TableHead>
-          <TableHead>Uploaded</TableHead>
-          <TableHead></TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {files.map((file) => (
-          <TableRow key={file.id}>
-            <TableCell className="font-medium">{file.filename}</TableCell>
-            <TableCell className="uppercase">{file.fileType}</TableCell>
-            <TableCell>{formatFileSize(file.fileSize)}</TableCell>
-            <TableCell>{file.uploadedBy}</TableCell>
-            <TableCell>
-              {new Date(file.uploadedAt).toLocaleDateString()}
-            </TableCell>
-            <TableCell>
-              <div className="flex gap-2">
-                {onViewSummary && (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Filename</TableHead>
+            <TableHead className="hidden sm:table-cell">Type</TableHead>
+            <TableHead className="hidden sm:table-cell">Size</TableHead>
+            <TableHead className="hidden md:table-cell">Uploaded By</TableHead>
+            <TableHead className="hidden md:table-cell">Uploaded</TableHead>
+            <TableHead></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {files.map((file) => (
+            <TableRow key={file.id}>
+              <TableCell className="font-medium">{file.filename}</TableCell>
+              <TableCell className="hidden sm:table-cell uppercase">{file.fileType}</TableCell>
+              <TableCell className="hidden sm:table-cell">{formatFileSize(file.fileSize)}</TableCell>
+              <TableCell className="hidden md:table-cell">{file.uploadedBy}</TableCell>
+              <TableCell className="hidden md:table-cell">
+                {new Date(file.uploadedAt).toLocaleDateString()}
+              </TableCell>
+              <TableCell>
+                <div className="flex gap-1 justify-end">
+                  {onViewSummary && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onViewSummary(file.id)}
+                    >
+                      <FileText />
+                      <span className="hidden lg:inline">View Summary</span>
+                    </Button>
+                  )}
+                  <a
+                    href={file.blobUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Button variant="outline" size="sm">
+                      <Download />
+                      <span className="hidden lg:inline">Download</span>
+                    </Button>
+                  </a>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onViewSummary(file.id)}
+                    onClick={() => handleReprocess(file.id)}
                   >
-                    <FileText /> View Summary
+                    <RotateCw />
+                    <span className="hidden lg:inline">Re-process</span>
                   </Button>
-                )}
-                <a
-                  href={file.blobUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Button variant="outline" size="sm">
-                    <Download /> Download
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(file.id)}
+                  >
+                    <Trash2 />
+                    <span className="hidden lg:inline">Delete</span>
                   </Button>
-                </a>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleReprocess(file.id)}
-                >
-                  <RotateCw /> Re-process
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(file.id)}
-                >
-                  <Trash2 /> Delete
-                </Button>
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

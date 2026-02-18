@@ -40,6 +40,7 @@ All UI primitives come from **shadcn/ui** in `src/components/ui/`. Do not create
 - Use for create/edit forms that don't warrant a full page.
 - Always include `DialogHeader` with a `DialogTitle`.
 - Reset form state when dialog closes via `onOpenChange`.
+- The X close button **must** have a visible background hover state. The base `dialog.tsx` handles this with `hover:bg-accent hover:text-accent-foreground` — do not override or remove it.
 
 ### Tables
 - Use shadcn `Table` components for list views (files, summaries, people).
@@ -76,6 +77,7 @@ The shadcn `Button` component includes `cursor-pointer` in its base styles. When
 
 ## Anti-patterns
 
+- **No invisible hover states.** All clickable non-Button elements (X close buttons, icon-only buttons, styled links) must have a visible hover state. Use `hover:bg-accent hover:text-accent-foreground` for icon buttons — an opacity change alone is not sufficient.
 - **No raw colors.** Never use `bg-blue-500` or `text-gray-600`. Use theme variables.
 - **No extra icon libraries.** Don't add Font Awesome, Heroicons, etc.
 - **No empty catch blocks.** Always `catch (error)` and log it (see `docs/logging-standards.md`).
