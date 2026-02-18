@@ -10,11 +10,14 @@ export async function generateSummary(prompt: string): Promise<{
   inputTokens: number;
   outputTokens: number;
 }> {
-  const response = await anthropic.messages.create({
-    model: MODEL,
-    max_tokens: 8192,
-    messages: [{ role: "user", content: prompt }],
-  });
+  const response = await anthropic.messages.create(
+    {
+      model: MODEL,
+      max_tokens: 8192,
+      messages: [{ role: "user", content: prompt }],
+    },
+    { signal: AbortSignal.timeout(240_000) }
+  );
 
   const textBlock = response.content.find((block) => block.type === "text");
   if (!textBlock || textBlock.type !== "text") {

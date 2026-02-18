@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { usePolling } from "@/hooks/use-polling";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 
 interface ProcessingJob {
   id: string;
@@ -78,32 +79,41 @@ export function ProcessingIndicator({
   const [jobs, setJobs] = useState<ProcessingJob[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const fetchJobs = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/projects/${projectId}/processing-status`);
+      if (res.ok) setJobs(await res.json());
+    } catch (error) {
+      console.error("[processing-status]", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId]);
+
   useEffect(() => {
     if (!open) return;
-    let cancelled = false;
-
-    async function fetchJobs() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/projects/${projectId}/processing-status`);
-        if (res.ok && !cancelled) {
-          setJobs(await res.json());
-        }
-      } catch (error) {
-        console.error("[processing-status]", error);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
     fetchJobs();
     const interval = setInterval(fetchJobs, 5000);
+    return () => clearInterval(interval);
+  }, [open, fetchJobs]);
 
-    return () => {
-      cancelled = true;
-      clearInterval(interval);
-    };
-  }, [open, projectId]);
+  async function handleReprocess(sourceFileId: string) {
+    try {
+      await fetch(`/api/projects/${projectId}/files/${sourceFileId}/reprocess`, { method: "POST" });
+      fetchJobs();
+    } catch (error) {
+      console.error("[reprocess]", error);
+    }
+  }
+
+  function isStuck(job: ProcessingJob) {
+    return (
+      job.status === "processing" &&
+      job.startedAt !== null &&
+      Date.now() - new Date(job.startedAt).getTime() > 10 * 60 * 1000
+    );
+  }
 
   if (activeCount === 0) return null;
 
@@ -146,7 +156,19 @@ export function ProcessingIndicator({
                     <span className="font-medium">
                       {job.filename ?? "Unknown file"}
                     </span>
-                    {statusBadge(job.status)}
+                    <div className="flex items-center gap-2">
+                      {statusBadge(job.status)}
+                      {isStuck(job) && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleReprocess(job.sourceFileId)}
+                        >
+                          <RefreshCw className="mr-1 h-3 w-3" />
+                          Reprocess
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">
