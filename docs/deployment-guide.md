@@ -88,3 +88,38 @@ This runs `prisma generate && next build`. Turbopack is used for development; th
 | 500 on Claude summarization | `ANTHROPIC_API_KEY` missing or invalid | Check the key in Vercel env vars |
 | Files upload but never process | `maxDuration` too low or Claude timeout | Confirm route has `maxDuration = 300`; check Vercel function logs |
 | "Unauthorized" on Otter webhook | `INGEST_SECRET` mismatch | Ensure the Bearer token matches the env var |
+| "Transactions are not supported in HTTP mode" | `prisma.*.updateMany()` or `prisma.$transaction()` used | See Neon constraint below |
+
+## Neon HTTP Adapter Constraints
+
+**This project uses `@prisma/adapter-neon` in HTTP mode.** This is a hard constraint that affects how Prisma queries must be written throughout the entire codebase.
+
+### What is NOT supported
+- `prisma.$transaction([...])` — batch transactions
+- `prisma.$transaction(async (tx) => {...})` — interactive transactions
+- `prisma.*.updateMany(...)` — triggers implicit transactions in the Neon HTTP adapter
+
+### Required pattern: `findFirst` + `update` instead of `updateMany`
+
+**Wrong (will throw "Transactions are not supported in HTTP mode"):**
+```ts
+await prisma.processingJob.updateMany({
+  where: { sourceFileId, status: "queued" },
+  data: { status: "processing" },
+});
+```
+
+**Correct:**
+```ts
+const job = await prisma.processingJob.findFirst({
+  where: { sourceFileId, status: "queued" },
+});
+if (job) {
+  await prisma.processingJob.update({
+    where: { id: job.id },
+    data: { status: "processing" },
+  });
+}
+```
+
+This applies everywhere — route handlers, background jobs, utility functions. Any time you need to update multiple records or update by a non-unique field, use `findFirst` + `update` (or `findMany` + loop). Never use `updateMany` or `$transaction`.

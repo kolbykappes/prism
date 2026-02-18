@@ -36,12 +36,17 @@ export async function PUT(
       return errorResponse("Template not found", 404);
     }
 
-    // If setting as default, unset current default
+    // If setting as default, unset current default (updateMany not supported in Neon HTTP mode)
     if (isDefault && !existing.isDefault) {
-      await prisma.promptTemplate.updateMany({
+      const currentDefault = await prisma.promptTemplate.findFirst({
         where: { isDefault: true },
-        data: { isDefault: false },
       });
+      if (currentDefault) {
+        await prisma.promptTemplate.update({
+          where: { id: currentDefault.id },
+          data: { isDefault: false },
+        });
+      }
     }
 
     const updated = await prisma.promptTemplate.update({

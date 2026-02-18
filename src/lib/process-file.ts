@@ -21,10 +21,15 @@ export async function processFile(sourceFileId: string): Promise<void> {
       data: { processingStatus: "processing" },
     });
 
-    await prisma.processingJob.updateMany({
+    const queuedJob = await prisma.processingJob.findFirst({
       where: { sourceFileId, status: "queued" },
-      data: { status: "processing", startedAt: new Date() },
     });
+    if (queuedJob) {
+      await prisma.processingJob.update({
+        where: { id: queuedJob.id },
+        data: { status: "processing", startedAt: new Date() },
+      });
+    }
 
     logger.info("process-file.status-updated", {
       sourceFileId,
@@ -148,10 +153,15 @@ export async function processFile(sourceFileId: string): Promise<void> {
       },
     });
 
-    await prisma.processingJob.updateMany({
+    const processingJob = await prisma.processingJob.findFirst({
       where: { sourceFileId, status: "processing" },
-      data: { status: "complete", completedAt: new Date() },
     });
+    if (processingJob) {
+      await prisma.processingJob.update({
+        where: { id: processingJob.id },
+        data: { status: "complete", completedAt: new Date() },
+      });
+    }
 
     await prisma.project.update({
       where: { id: sourceFile.projectId },
@@ -182,14 +192,19 @@ export async function processFile(sourceFileId: string): Promise<void> {
         },
       });
 
-      await prisma.processingJob.updateMany({
+      const failingJob = await prisma.processingJob.findFirst({
         where: { sourceFileId, status: "processing" },
-        data: {
-          status: "failed",
-          completedAt: new Date(),
-          errorMessage: errorMsg.slice(0, 1000),
-        },
       });
+      if (failingJob) {
+        await prisma.processingJob.update({
+          where: { id: failingJob.id },
+          data: {
+            status: "failed",
+            completedAt: new Date(),
+            errorMessage: errorMsg.slice(0, 1000),
+          },
+        });
+      }
     } catch (updateError) {
       logger.error("process-file.failure-handler.db-update-failed", {
         sourceFileId,

@@ -27,12 +27,17 @@ export async function POST(request: NextRequest) {
       return errorResponse("Template content is required");
     }
 
-    // If setting as default, unset current default
+    // If setting as default, unset current default (updateMany not supported in Neon HTTP mode)
     if (isDefault) {
-      await prisma.promptTemplate.updateMany({
+      const currentDefault = await prisma.promptTemplate.findFirst({
         where: { isDefault: true },
-        data: { isDefault: false },
       });
+      if (currentDefault) {
+        await prisma.promptTemplate.update({
+          where: { id: currentDefault.id },
+          data: { isDefault: false },
+        });
+      }
     }
 
     const template = await prisma.promptTemplate.create({
