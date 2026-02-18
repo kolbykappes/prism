@@ -16,6 +16,9 @@
 ## Logging & Error Handling
 - Follow the standards in `docs/logging-standards.md` for all server and client error handling, logging patterns, and versioning.
 
+## Dependencies
+- Do **not** add new npm packages without explicit user approval. Prefer Next.js built-ins and existing libs before reaching for a new dependency.
+
 ## Git Workflow
 - After completing a set of changes, automatically commit but do NOT push. Wait for the user to say when to push.
 - Use concise, descriptive commit messages.

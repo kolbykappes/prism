@@ -1,17 +1,15 @@
-import { NextRequest } from "next/server";
+import { NextRequest, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { jsonResponse, errorResponse } from "@/lib/api-helpers";
 import { uploadBlob } from "@/lib/blob";
 import { validateFileType, validateFileSize, extensionToFileType } from "@/lib/validation";
 import { FileType } from "@/generated/prisma";
-import { inngest } from "@/inngest/client";
+import { processFile } from "@/lib/process-file";
 import { logActivity } from "@/lib/activity";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
-
-// Allow large file uploads
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function GET(
   _request: NextRequest,
@@ -103,15 +101,8 @@ export async function POST(
       data: { updatedAt: new Date() },
     });
 
-    // Fire Inngest event for background processing (non-fatal)
-    try {
-      await inngest.send({
-        name: "file/uploaded",
-        data: { sourceFileId: sourceFile.id },
-      });
-    } catch (error) {
-      logger.warn("inngest.send.failed", { sourceFileId: sourceFile.id, error });
-    }
+    // Schedule background processing after response is sent
+    after(() => processFile(sourceFile.id));
 
     logActivity({
       projectId: id,

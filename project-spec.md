@@ -19,8 +19,8 @@ PRISM is a web application that ingests source materials (transcripts, documents
 | UI | **Tailwind CSS + shadcn/ui** | |
 | Database | **Vercel Postgres (Neon)** | Via Prisma ORM |
 | File Storage | **Vercel Blob** | For source files and generated markdown |
-| Background Jobs | **Inngest** | For async LLM processing (handles Vercel function timeouts) |
-| LLM | **Anthropic Claude API** | TypeScript SDK, Claude Sonnet 4 for speed/cost |
+| Background Jobs | **next/server `after()`** | Runs LLM processing after upload response; bounded by `maxDuration = 300` |
+| LLM | **Anthropic Claude API** | TypeScript SDK, Haiku 4.5 for speed/cost |
 | Deployment | **Vercel (Pro plan)** | 300s function timeout available |
 
 ---
@@ -507,8 +507,6 @@ All API routes are Next.js App Router route handlers (`/app/api/...`).
 DATABASE_URL=           # Vercel Postgres connection string
 BLOB_READ_WRITE_TOKEN=  # Vercel Blob token
 ANTHROPIC_API_KEY=      # Claude API key
-INNGEST_EVENT_KEY=      # Inngest event key
-INNGEST_SIGNING_KEY=    # Inngest signing key
 INGEST_SECRET=          # Shared secret for webhook authentication (Otter, email)
 ```
 
@@ -518,9 +516,8 @@ INGEST_SECRET=          # Shared secret for webhook authentication (Otter, email
 
 - Deploy to **Vercel** via GitHub repo connection
 - Vercel Postgres and Vercel Blob provisioned via Vercel dashboard
-- Inngest connected via Vercel integration (or self-hosted URL)
 - Prisma migrations run via `prisma migrate deploy` in build step
-- Pro plan provides 300s function timeout for LLM processing routes
+- Pro plan provides 300s function timeout; upload and reprocess routes set `maxDuration = 300`
 
 ---
 
