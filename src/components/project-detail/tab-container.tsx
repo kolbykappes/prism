@@ -13,6 +13,7 @@ interface Summary {
   content: string | null;
   generatedAt: string | null;
   processingStatus: string;
+  errorMessage: string | null;
   tokenCount: number | null;
   truncated: boolean;
   sourceFile: {
