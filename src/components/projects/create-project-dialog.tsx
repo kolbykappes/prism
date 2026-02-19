@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -16,13 +16,74 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+const STORAGE_KEY = "prism:create-project-defaults";
+
+interface Company {
+  id: string;
+  name: string;
+  businessUnits: { id: string; name: string }[];
+}
+
+function loadDefaults() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as {
+      projectType: "DELIVERY" | "EG_PURSUIT";
+      companyId: string;
+      businessUnitId: string;
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveDefaults(values: {
+  projectType: "DELIVERY" | "EG_PURSUIT";
+  companyId: string;
+  businessUnitId: string;
+}) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
+  } catch {
+    // ignore
+  }
+}
+
 export function CreateProjectDialog() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [projectType, setProjectType] = useState<"DELIVERY" | "EG_PURSUIT">("DELIVERY");
+  const [companyId, setCompanyId] = useState("");
+  const [businessUnitId, setBusinessUnitId] = useState("");
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  // Load remembered defaults and fetch companies when dialog opens
+  useEffect(() => {
+    if (!open) return;
+
+    const defaults = loadDefaults();
+    if (defaults) {
+      setProjectType(defaults.projectType);
+      setCompanyId(defaults.companyId);
+      setBusinessUnitId(defaults.businessUnitId);
+    }
+
+    fetch("/api/companies")
+      .then((r) => r.json())
+      .then(setCompanies)
+      .catch(() => {});
+  }, [open]);
+
+  function handleCompanyChange(id: string) {
+    setCompanyId(id);
+    setBusinessUnitId("");
+  }
+
+  const selectedCompany = companies.find((c) => c.id === companyId);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +94,13 @@ export function CreateProjectDialog() {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, description, projectType }),
+        body: JSON.stringify({
+          name,
+          description,
+          projectType,
+          companyId: companyId || null,
+          businessUnitId: businessUnitId || null,
+        }),
       });
 
       if (!res.ok) {
@@ -42,12 +109,14 @@ export function CreateProjectDialog() {
         return;
       }
 
+      // Remember selections for next time
+      saveDefaults({ projectType, companyId, businessUnitId });
+
       const project = await res.json();
       toast.success("Project created");
       setOpen(false);
       setName("");
       setDescription("");
-      setProjectType("DELIVERY");
       router.push(`/projects/${project.id}`);
       router.refresh();
     } catch {
@@ -89,6 +158,36 @@ export function CreateProjectDialog() {
               <option value="EG_PURSUIT">EG Pursuit</option>
             </select>
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="create-company">Company (optional)</Label>
+            <select
+              id="create-company"
+              value={companyId}
+              onChange={(e) => handleCompanyChange(e.target.value)}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="">— None —</option>
+              {companies.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          {selectedCompany && selectedCompany.businessUnits.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="create-bu">Business Unit (optional)</Label>
+              <select
+                id="create-bu"
+                value={businessUnitId}
+                onChange={(e) => setBusinessUnitId(e.target.value)}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                <option value="">— None —</option>
+                {selectedCompany.businessUnits.map((bu) => (
+                  <option key={bu.id} value={bu.id}>{bu.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="space-y-2">
             <Label htmlFor="description">Description (optional)</Label>
             <Textarea
