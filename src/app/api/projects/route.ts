@@ -42,10 +42,13 @@ export async function POST(request: NextRequest) {
       return errorResponse("A project with this name already exists", 409);
     }
 
+    const { projectType } = body;
+
     const project = await prisma.project.create({
       data: {
         name: name.trim(),
         description: description?.trim() || null,
+        projectType: projectType === "EG_PURSUIT" ? "EG_PURSUIT" : "DELIVERY",
       },
     });
 

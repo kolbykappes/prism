@@ -30,12 +30,19 @@ interface Summary {
   };
 }
 
+interface KbContext {
+  name: string;
+  markdownContent: string | null;
+}
+
 interface KnowledgeBaseTabProps {
   projectId: string;
   summaries: Summary[];
   compressedKb: string | null;
   compressedKbAt: string | null;
   compressedKbTokenCount: number | null;
+  company: KbContext | null;
+  businessUnit: KbContext | null;
 }
 
 function CompressDialog({
@@ -128,6 +135,8 @@ export function KnowledgeBaseTab({
   compressedKb,
   compressedKbAt,
   compressedKbTokenCount,
+  company,
+  businessUnit,
 }: KnowledgeBaseTabProps) {
   const router = useRouter();
   const [compressDialogOpen, setCompressDialogOpen] = useState(false);
@@ -163,7 +172,36 @@ export function KnowledgeBaseTab({
     0
   );
 
+  const hasContext = !!(company?.markdownContent || businessUnit?.markdownContent);
+
   if (completeSummaries.length === 0) {
+    if (hasContext) {
+      // Still show company/BU context even with no summaries
+      return (
+        <div className="space-y-6">
+          {company?.markdownContent && (
+            <div>
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                Company — {company.name}
+              </h4>
+              <MarkdownRenderer content={company.markdownContent} />
+            </div>
+          )}
+          {businessUnit?.markdownContent && (
+            <div>
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                Business Unit — {businessUnit.name}
+              </h4>
+              <MarkdownRenderer content={businessUnit.markdownContent} />
+            </div>
+          )}
+          <EmptyState
+            title="No summaries yet"
+            description="Upload and process files to build your knowledge base."
+          />
+        </div>
+      );
+    }
     return (
       <EmptyState
         title="No summaries yet"
@@ -202,6 +240,29 @@ export function KnowledgeBaseTab({
           )}
         </Button>
       </div>
+
+      {/* Company / BU context */}
+      {(company?.markdownContent || businessUnit?.markdownContent) && (
+        <div className="mb-8 space-y-6">
+          {company?.markdownContent && (
+            <div>
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                Company — {company.name}
+              </h4>
+              <MarkdownRenderer content={company.markdownContent} />
+            </div>
+          )}
+          {businessUnit?.markdownContent && (
+            <div>
+              <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                Business Unit — {businessUnit.name}
+              </h4>
+              <MarkdownRenderer content={businessUnit.markdownContent} />
+            </div>
+          )}
+          <hr className="border-border" />
+        </div>
+      )}
 
       {/* Compressed KB content */}
       {compressedKb ? (

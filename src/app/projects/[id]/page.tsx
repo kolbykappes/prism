@@ -33,6 +33,8 @@ export default async function ProjectDetailPage({
         orderBy: { addedAt: "desc" },
         include: { person: true },
       },
+      company: { select: { id: true, name: true, markdownContent: true } },
+      businessUnit: { select: { id: true, name: true, markdownContent: true } },
     },
   });
 
@@ -103,6 +105,9 @@ export default async function ProjectDetailPage({
               projectId={id}
               name={project.name}
               description={project.description ?? null}
+              projectType={project.projectType}
+              companyId={project.companyId ?? null}
+              businessUnitId={project.businessUnitId ?? null}
             />
           </div>
           {project.description && (
@@ -149,6 +154,8 @@ export default async function ProjectDetailPage({
         compressedKb={project.compressedKb ?? null}
         compressedKbAt={project.compressedKbAt?.toISOString() ?? null}
         compressedKbTokenCount={project.compressedKbTokenCount ?? null}
+        company={project.company ? { name: project.company.name, markdownContent: project.company.markdownContent } : null}
+        businessUnit={project.businessUnit ? { name: project.businessUnit.name, markdownContent: project.businessUnit.markdownContent } : null}
       />
     </div>
   );

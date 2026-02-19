@@ -52,6 +52,11 @@ interface ProjectPerson {
   };
 }
 
+interface KbContext {
+  name: string;
+  markdownContent: string | null;
+}
+
 export function TabContainer({
   summaries,
   files,
@@ -60,6 +65,8 @@ export function TabContainer({
   compressedKb,
   compressedKbAt,
   compressedKbTokenCount,
+  company,
+  businessUnit,
 }: {
   summaries: Summary[];
   files: SourceFile[];
@@ -68,6 +75,8 @@ export function TabContainer({
   compressedKb: string | null;
   compressedKbAt: string | null;
   compressedKbTokenCount: number | null;
+  company: KbContext | null;
+  businessUnit: KbContext | null;
 }) {
   const [activeTab, setActiveTab] = useState("knowledge-base");
 
@@ -97,6 +106,8 @@ export function TabContainer({
           compressedKb={compressedKb}
           compressedKbAt={compressedKbAt}
           compressedKbTokenCount={compressedKbTokenCount}
+          company={company}
+          businessUnit={businessUnit}
         />
       </TabsContent>
       <TabsContent value="summaries" className="mt-2">

@@ -2,7 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity";
 import { logger } from "@/lib/logger";
-import { KB_COMPRESSION_PROMPT } from "@/lib/llm/prompt-template";
+import { KB_COMPRESSION_PROMPT, KB_COMPRESSION_EG_PURSUIT_PROMPT } from "@/lib/llm/prompt-template";
 
 const anthropic = new Anthropic();
 const MODEL = "claude-haiku-4-5-20251001";
@@ -11,14 +11,30 @@ export async function compressKb(projectId: string, targetTokens: number): Promi
   logger.info("compress-kb.started", { projectId, targetTokens });
 
   try {
-    // Load compression system prompt from DB, fall back to hardcoded constant
-    const compressionTemplate = await prisma.promptTemplate.findFirst({
-      where: { slug: "kb_compression" },
+    // Fetch project with type and company/BU context
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: {
+        projectType: true,
+        company: { select: { name: true, markdownContent: true } },
+        businessUnit: { select: { name: true, markdownContent: true } },
+      },
     });
-    const systemPrompt = compressionTemplate?.content ?? KB_COMPRESSION_PROMPT;
+
+    // Select compression prompt based on project type
+    const isEgPursuit = project?.projectType === "EG_PURSUIT";
+    const compressionSlug = isEgPursuit ? "kb_compression_eg_pursuit" : "kb_compression";
+    const fallbackPrompt = isEgPursuit ? KB_COMPRESSION_EG_PURSUIT_PROMPT : KB_COMPRESSION_PROMPT;
+
+    const compressionTemplate = await prisma.promptTemplate.findFirst({
+      where: { slug: compressionSlug },
+    });
+    const systemPrompt = compressionTemplate?.content ?? fallbackPrompt;
 
     logger.info("compress-kb.prompt-selected", {
       projectId,
+      projectType: project?.projectType ?? "DELIVERY",
+      slug: compressionSlug,
       templateId: compressionTemplate?.id ?? null,
       source: compressionTemplate ? "db" : "hardcoded",
     });
@@ -45,6 +61,15 @@ export async function compressKb(projectId: string, targetTokens: number): Promi
       return;
     }
 
+    // Build company/BU context preamble
+    const contextSections: string[] = [];
+    if (project?.company?.markdownContent) {
+      contextSections.push(`## Company Context: ${project.company.name}\n\n${project.company.markdownContent}`);
+    }
+    if (project?.businessUnit?.markdownContent) {
+      contextSections.push(`## Business Unit Context: ${project.businessUnit.name}\n\n${project.businessUnit.markdownContent}`);
+    }
+
     // Build the user message with dated summaries
     const sections = completeSummaries.map((s) => {
       const effectiveDate = s.sourceFile.contentDate ?? s.sourceFile.uploadedAt;
@@ -53,7 +78,11 @@ export async function compressKb(projectId: string, targetTokens: number): Promi
       return `## ${s.sourceFile.filename}\n_Content date: ${dateStr} (${dateSource})_\n\n${s.content}`;
     });
 
-    const userMessage = `The following are document summaries from a project knowledge base, ordered from oldest to most recent. Please compress them into a single unified knowledge base document of approximately ${targetTokens} tokens.
+    const contextPreamble = contextSections.length > 0
+      ? `The following context documents are provided for reference:\n\n${contextSections.join("\n\n---\n\n")}\n\n---\n\n`
+      : "";
+
+    const userMessage = `${contextPreamble}The following are document summaries from a project knowledge base, ordered from oldest to most recent. Please compress them into a single unified knowledge base document of approximately ${targetTokens} tokens.
 
 ${sections.join("\n\n---\n\n")}`;
 

@@ -1,4 +1,4 @@
-// System data seed — upserts the 3 canonical prompt templates.
+// System data seed — upserts the 4 canonical prompt templates.
 // Runs automatically via `prisma db seed` during the Vercel build.
 // Safe to re-run: skips slugs that already exist, preserving any UI edits.
 
@@ -13,6 +13,7 @@ import {
   MEETING_TRANSCRIPT_PROMPT,
   GENERAL_CONTENT_PROMPT,
   KB_COMPRESSION_PROMPT,
+  KB_COMPRESSION_EG_PURSUIT_PROMPT,
 } from "../src/lib/llm/prompt-template";
 
 const adapter = new PrismaNeonHttp(process.env.DATABASE_URL!, {});
@@ -35,6 +36,12 @@ const SYSTEM_PROMPTS = [
     slug: "kb_compression",
     name: "Knowledge Base Compression",
     content: KB_COMPRESSION_PROMPT,
+    isDefault: false,
+  },
+  {
+    slug: "kb_compression_eg_pursuit",
+    name: "KB Compression — EG Pursuit",
+    content: KB_COMPRESSION_EG_PURSUIT_PROMPT,
     isDefault: false,
   },
 ];

@@ -20,6 +20,7 @@ export function CreateProjectDialog() {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [projectType, setProjectType] = useState<"DELIVERY" | "EG_PURSUIT">("DELIVERY");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
@@ -32,7 +33,7 @@ export function CreateProjectDialog() {
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, description }),
+        body: JSON.stringify({ name, description, projectType }),
       });
 
       if (!res.ok) {
@@ -46,6 +47,7 @@ export function CreateProjectDialog() {
       setOpen(false);
       setName("");
       setDescription("");
+      setProjectType("DELIVERY");
       router.push(`/projects/${project.id}`);
       router.refresh();
     } catch {
@@ -74,6 +76,18 @@ export function CreateProjectDialog() {
               placeholder="My Project"
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="project-type">Project Type</Label>
+            <select
+              id="project-type"
+              value={projectType}
+              onChange={(e) => setProjectType(e.target.value as "DELIVERY" | "EG_PURSUIT")}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="DELIVERY">Delivery</option>
+              <option value="EG_PURSUIT">EG Pursuit</option>
+            </select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description (optional)</Label>

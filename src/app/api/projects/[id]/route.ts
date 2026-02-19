@@ -20,6 +20,8 @@ export async function GET(
             markdownSummaries: true,
           },
         },
+        company: { select: { id: true, name: true, markdownContent: true } },
+        businessUnit: { select: { id: true, name: true, markdownContent: true } },
       },
     });
 
@@ -41,7 +43,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, description, overview } = body;
+    const { name, description, overview, projectType, companyId, businessUnitId } = body;
 
     if (name !== undefined && (typeof name !== "string" || name.trim().length === 0)) {
       return errorResponse("Project name cannot be empty");
@@ -67,6 +69,9 @@ export async function PUT(
         ...(name !== undefined && { name: name.trim() }),
         ...(description !== undefined && { description: description?.trim() || null }),
         ...(overview !== undefined && { overview: overview?.trim() || null }),
+        ...(projectType !== undefined && { projectType: projectType === "EG_PURSUIT" ? "EG_PURSUIT" : "DELIVERY" }),
+        ...(companyId !== undefined && { companyId: companyId || null }),
+        ...(businessUnitId !== undefined && { businessUnitId: businessUnitId || null }),
       },
     });
 

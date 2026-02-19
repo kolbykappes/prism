@@ -44,6 +44,7 @@ export default async function HomePage() {
               id={project.id}
               name={project.name}
               description={project.description}
+              projectType={project.projectType}
               createdAt={project.createdAt.toISOString()}
               updatedAt={project.updatedAt.toISOString()}
               _count={project._count}

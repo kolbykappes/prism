@@ -20,6 +20,12 @@ export function Header() {
             Prompts
           </Link>
           <Link
+            href="/settings"
+            className="cursor-pointer text-sm text-primary-foreground/70 hover:text-primary-foreground"
+          >
+            Settings
+          </Link>
+          <Link
             href="/admin"
             className="cursor-pointer text-sm text-primary-foreground/70 hover:text-primary-foreground"
           >

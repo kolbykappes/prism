@@ -6,17 +6,19 @@ import {
   MEETING_TRANSCRIPT_PROMPT,
   GENERAL_CONTENT_PROMPT,
   KB_COMPRESSION_PROMPT,
+  KB_COMPRESSION_EG_PURSUIT_PROMPT,
 } from "@/lib/llm/prompt-template";
 
 const SYSTEM_PROMPTS = [
-  { slug: "meeting_transcript", name: "Meeting Transcript Summary", content: MEETING_TRANSCRIPT_PROMPT, isDefault: false },
-  { slug: "general_content",    name: "General Content Summary",    content: GENERAL_CONTENT_PROMPT,    isDefault: true  },
-  { slug: "kb_compression",     name: "Knowledge Base Compression", content: KB_COMPRESSION_PROMPT,     isDefault: false },
+  { slug: "meeting_transcript",       name: "Meeting Transcript Summary",  content: MEETING_TRANSCRIPT_PROMPT,       isDefault: false },
+  { slug: "general_content",          name: "General Content Summary",      content: GENERAL_CONTENT_PROMPT,          isDefault: true  },
+  { slug: "kb_compression",           name: "Knowledge Base Compression",   content: KB_COMPRESSION_PROMPT,           isDefault: false },
+  { slug: "kb_compression_eg_pursuit", name: "KB Compression — EG Pursuit", content: KB_COMPRESSION_EG_PURSUIT_PROMPT, isDefault: false },
 ];
 
 async function ensureSystemPrompts() {
   const count = await prisma.promptTemplate.count({ where: { slug: { not: null } } });
-  if (count >= 3) return;
+  if (count >= 4) return;
 
   for (const p of SYSTEM_PROMPTS) {
     const exists = await prisma.promptTemplate.findFirst({ where: { slug: p.slug } });

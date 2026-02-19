@@ -8,11 +8,13 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface ProjectCardProps {
   id: string;
   name: string;
   description: string | null;
+  projectType: "EG_PURSUIT" | "DELIVERY";
   createdAt: string;
   updatedAt: string;
   _count: {
@@ -25,6 +27,7 @@ export function ProjectCard({
   id,
   name,
   description,
+  projectType,
   createdAt,
   updatedAt,
   _count,
@@ -33,7 +36,12 @@ export function ProjectCard({
     <Link href={`/projects/${id}`}>
       <Card className="cursor-pointer transition-colors hover:border-primary/50 hover:shadow-md">
         <CardHeader>
-          <CardTitle>{name}</CardTitle>
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle>{name}</CardTitle>
+            <Badge variant="outline" className="shrink-0 text-xs">
+              {projectType === "EG_PURSUIT" ? "EG Pursuit" : "Delivery"}
+            </Badge>
+          </div>
           {description && (
             <CardDescription className="line-clamp-2">
               {description}

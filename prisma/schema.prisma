@@ -7,6 +7,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum ProjectType {
+  EG_PURSUIT
+  DELIVERY
+}
+
 enum FileType {
   txt
   vtt
@@ -37,13 +42,47 @@ enum ActivityAction {
   kb_compressed
 }
 
+model Company {
+  id              String         @id @default(uuid()) @db.Uuid
+  name            String         @unique
+  description     String?
+  markdownContent String?        @map("markdown_content")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  businessUnits BusinessUnit[]
+  projects      Project[]
+
+  @@map("companies")
+}
+
+model BusinessUnit {
+  id              String    @id @default(uuid()) @db.Uuid
+  companyId       String    @map("company_id") @db.Uuid
+  name            String
+  description     String?
+  markdownContent String?   @map("markdown_content")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  company  Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  projects Project[]
+
+  @@map("business_units")
+}
+
 model Project {
-  id          String   @id @default(uuid()) @db.Uuid
-  name        String   @unique
+  id          String      @id @default(uuid()) @db.Uuid
+  name        String      @unique
   description String?
   overview    String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  projectType ProjectType @default(DELIVERY) @map("project_type")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+
+  // Company / BU links
+  companyId      String? @map("company_id") @db.Uuid
+  businessUnitId String? @map("business_unit_id") @db.Uuid
 
   // Future-proofing
   userId       String? @map("user_id")
@@ -54,6 +93,9 @@ model Project {
   compressedKb           String?   @map("compressed_kb")
   compressedKbAt         DateTime? @map("compressed_kb_at")
   compressedKbTokenCount Int?      @map("compressed_kb_token_count")
+
+  company      Company?      @relation(fields: [companyId], references: [id])
+  businessUnit BusinessUnit? @relation(fields: [businessUnitId], references: [id])
 
   sourceFiles       SourceFile[]
   markdownSummaries MarkdownSummary[]
