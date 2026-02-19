@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Minimize2 } from "lucide-react";
+import { Minimize2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface Summary {
@@ -43,14 +43,15 @@ function CompressDialog({
   onOpenChange,
   projectId,
   rawTokenCount,
+  onCompressStarted,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   projectId: string;
   rawTokenCount: number;
+  onCompressStarted: () => void;
 }) {
-  const router = useRouter();
-  const [targetTokens, setTargetTokens] = useState("2000");
+  const [targetTokens, setTargetTokens] = useState("10000");
   const [compressing, setCompressing] = useState(false);
 
   async function handleCompress() {
@@ -71,9 +72,8 @@ function CompressDialog({
         toast.error(data.error || "Failed to start compression");
         return;
       }
-      toast.success("Compression started — refresh in a moment to see the result");
       onOpenChange(false);
-      setTimeout(() => router.refresh(), 5000);
+      onCompressStarted();
     } catch {
       toast.error("Failed to start compression");
     } finally {
@@ -129,7 +129,30 @@ export function KnowledgeBaseTab({
   compressedKbAt,
   compressedKbTokenCount,
 }: KnowledgeBaseTabProps) {
+  const router = useRouter();
   const [compressDialogOpen, setCompressDialogOpen] = useState(false);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const baselineKbAt = useRef<string | null>(null);
+
+  // Poll every 5s while compressing; stop when compressedKbAt changes
+  useEffect(() => {
+    if (!isCompressing) return;
+
+    if (compressedKbAt !== baselineKbAt.current) {
+      setIsCompressing(false);
+      toast.success("Knowledge base compressed successfully!");
+      return;
+    }
+
+    const timer = setTimeout(() => router.refresh(), 5000);
+    return () => clearTimeout(timer);
+  }, [isCompressing, compressedKbAt, router]);
+
+  function handleCompressStarted() {
+    baselineKbAt.current = compressedKbAt;
+    setIsCompressing(true);
+    toast.info("Compressing knowledge base — this takes 20–40 seconds…");
+  }
 
   const completeSummaries = summaries.filter(
     (s) => s.processingStatus === "complete"
@@ -161,9 +184,22 @@ export function KnowledgeBaseTab({
               : `${completeSummaries.length} summar${completeSummaries.length === 1 ? "y" : "ies"}`}
           </p>
         </div>
-        <Button variant="outline" onClick={() => setCompressDialogOpen(true)}>
-          <Minimize2 className="mr-2 h-4 w-4" />
-          {compressedKb ? "Re-compress" : "Compress"}
+        <Button
+          variant="outline"
+          onClick={() => setCompressDialogOpen(true)}
+          disabled={isCompressing}
+        >
+          {isCompressing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Compressing…
+            </>
+          ) : (
+            <>
+              <Minimize2 className="mr-2 h-4 w-4" />
+              {compressedKb ? "Re-compress" : "Compress"}
+            </>
+          )}
         </Button>
       </div>
 
@@ -217,6 +253,7 @@ export function KnowledgeBaseTab({
         onOpenChange={setCompressDialogOpen}
         projectId={projectId}
         rawTokenCount={rawTokenCount}
+        onCompressStarted={handleCompressStarted}
       />
     </>
   );
