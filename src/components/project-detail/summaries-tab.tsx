@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { RotateCw, Eye } from "lucide-react";
+import { RotateCw, FileText } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -29,6 +29,7 @@ interface Summary {
   sourceFile: {
     filename: string;
     uploadedBy?: string;
+    uploadedAt: string;
     contentDate: string | null;
     contentDateSource: string | null;
   };
@@ -96,6 +97,7 @@ export function SummariesTab({
             <TableHead>Status</TableHead>
             <TableHead className="hidden md:table-cell">Content Date</TableHead>
             <TableHead className="hidden md:table-cell">Tokens</TableHead>
+            <TableHead className="hidden lg:table-cell">Uploaded</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -104,10 +106,10 @@ export function SummariesTab({
             <TableRow key={summary.id}>
               <TableCell className="font-medium max-w-[200px]">
                 <div className="truncate">
-                  {onClickFilename ? (
+                  {summary.processingStatus === "complete" && summary.content ? (
                     <button
-                      className="text-left hover:underline text-primary"
-                      onClick={() => onClickFilename(summary.sourceFileId)}
+                      className="text-left hover:underline text-primary cursor-pointer"
+                      onClick={() => setSheetSummary(summary)}
                     >
                       {summary.sourceFile.filename}
                     </button>
@@ -141,16 +143,19 @@ export function SummariesTab({
                   <div className="text-xs text-muted-foreground">truncated</div>
                 )}
               </TableCell>
+              <TableCell className="hidden lg:table-cell text-sm">
+                {new Date(summary.sourceFile.uploadedAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+              </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1">
-                  {summary.processingStatus === "complete" && summary.content && (
+                  {onClickFilename && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => setSheetSummary(summary)}
-                      title="View summary"
+                      onClick={() => onClickFilename(summary.sourceFileId)}
+                      title="View source file"
                     >
-                      <Eye />
+                      <FileText />
                     </Button>
                   )}
                   <Button

@@ -198,6 +198,7 @@ export function SourceFilesTab({
             <TableHead className="hidden sm:table-cell">Type</TableHead>
             <TableHead className="hidden sm:table-cell">Size</TableHead>
             <TableHead className="hidden md:table-cell">Content Date</TableHead>
+            <TableHead className="hidden lg:table-cell">Uploaded</TableHead>
             <TableHead></TableHead>
           </TableRow>
         </TableHeader>
@@ -219,6 +220,9 @@ export function SourceFilesTab({
                 ) : (
                   <span className="text-muted-foreground">—</span>
                 )}
+              </TableCell>
+              <TableCell className="hidden lg:table-cell text-sm">
+                {new Date(file.uploadedAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
               </TableCell>
               <TableCell>
                 <div className="flex gap-1 justify-end">

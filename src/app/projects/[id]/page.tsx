@@ -26,7 +26,7 @@ export default async function ProjectDetailPage({
       markdownSummaries: {
         orderBy: { generatedAt: "desc" },
         include: {
-          sourceFile: { select: { filename: true, uploadedBy: true, contentDate: true, contentDateSource: true } },
+          sourceFile: { select: { filename: true, uploadedBy: true, uploadedAt: true, contentDate: true, contentDateSource: true } },
         },
       },
       projectPeople: {
@@ -52,6 +52,7 @@ export default async function ProjectDetailPage({
     sourceFile: {
       filename: s.sourceFile.filename,
       uploadedBy: s.sourceFile.uploadedBy,
+      uploadedAt: s.sourceFile.uploadedAt.toISOString(),
       contentDate: s.sourceFile.contentDate?.toISOString() ?? null,
       contentDateSource: s.sourceFile.contentDateSource ?? null,
     },

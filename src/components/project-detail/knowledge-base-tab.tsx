@@ -22,6 +22,12 @@ interface Summary {
   id: string;
   tokenCount: number | null;
   processingStatus: string;
+  content: string | null;
+  generatedAt: string | null;
+  sourceFile: {
+    filename: string;
+    contentDate: string | null;
+  };
 }
 
 interface KnowledgeBaseTabProps {
@@ -180,10 +186,30 @@ export function KnowledgeBaseTab({
           <MarkdownRenderer content={compressedKb} />
         </div>
       ) : (
-        <EmptyState
-          title="Not yet compressed"
-          description="Compress the knowledge base to create a single unified document optimized for use in AI workflows."
-        />
+        <div className="space-y-0">
+          {[...completeSummaries]
+            .sort((a, b) => {
+              const aDate = a.sourceFile.contentDate ?? a.generatedAt ?? "";
+              const bDate = b.sourceFile.contentDate ?? b.generatedAt ?? "";
+              return bDate.localeCompare(aDate);
+            })
+            .map((summary, i) => (
+              <div key={summary.id}>
+                <div className="mb-3">
+                  <h3 className="text-base font-semibold">{summary.sourceFile.filename}</h3>
+                  {summary.generatedAt && (
+                    <p className="text-xs text-muted-foreground">
+                      {summary.sourceFile.contentDate
+                        ? new Date(summary.sourceFile.contentDate).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })
+                        : new Date(summary.generatedAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                    </p>
+                  )}
+                </div>
+                {summary.content && <MarkdownRenderer content={summary.content} />}
+                {i < completeSummaries.length - 1 && <hr className="my-6 border-border" />}
+              </div>
+            ))}
+        </div>
       )}
 
       <CompressDialog
