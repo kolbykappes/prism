@@ -4,6 +4,7 @@ import { extractContentDate } from "@/lib/extract-content-date";
 import { truncateText } from "@/lib/llm/truncation";
 import { buildPrompt } from "@/lib/llm/prompt-template";
 import { generateSummary } from "@/lib/llm/claude";
+import { detectFileIntent } from "@/lib/detect-file-intent";
 import { uploadBlob } from "@/lib/blob";
 import { logActivity } from "@/lib/activity";
 import { logger } from "@/lib/logger";
@@ -76,8 +77,32 @@ export async function processFile(sourceFileId: string): Promise<void> {
     // Step 3: Truncate, build prompt, call Claude
     const { text, truncated, percentCovered } = truncateText(extractedText);
 
-    const defaultTemplate = await prisma.promptTemplate.findFirst({
-      where: { isDefault: true },
+    // Determine which prompt slug to use based on file type
+    let promptSlug: string;
+    if (sourceFile.fileType === "vtt" || sourceFile.fileType === "srt") {
+      promptSlug = "meeting_transcript";
+    } else if (sourceFile.fileType === "txt") {
+      const intent = await detectFileIntent(extractedText);
+      promptSlug = intent === "transcript" ? "meeting_transcript" : "general_content";
+      logger.info("process-file.txt-intent-detected", { sourceFileId, intent, promptSlug });
+    } else {
+      // pdf, md, email, ics
+      promptSlug = "general_content";
+    }
+
+    const matchedTemplate = await prisma.promptTemplate.findFirst({
+      where: { slug: promptSlug },
+    });
+    // Fall back to any isDefault template if the slug isn't seeded yet
+    const defaultTemplate =
+      matchedTemplate ??
+      (await prisma.promptTemplate.findFirst({ where: { isDefault: true } }));
+
+    logger.info("process-file.prompt-selected", {
+      sourceFileId,
+      promptSlug,
+      templateId: defaultTemplate?.id ?? null,
+      templateName: defaultTemplate?.name ?? "hardcoded fallback",
     });
 
     const projectPeople = await prisma.projectPerson.findMany({

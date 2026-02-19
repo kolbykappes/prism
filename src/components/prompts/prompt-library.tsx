@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Pencil, Trash2, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Lock } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -19,11 +19,18 @@ import { toast } from "sonner";
 interface PromptTemplate {
   id: string;
   name: string;
+  slug: string | null;
   content: string;
   isDefault: boolean;
   createdAt: string;
   updatedAt: string;
 }
+
+const SLUG_LABELS: Record<string, string> = {
+  meeting_transcript: "Meeting Transcript",
+  general_content: "General Content",
+  kb_compression: "KB Compression",
+};
 
 export function PromptLibrary() {
   const [templates, setTemplates] = useState<PromptTemplate[]>([]);
@@ -110,7 +117,7 @@ export function PromptLibrary() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Type</TableHead>
               <TableHead>Updated</TableHead>
               <TableHead></TableHead>
             </TableRow>
@@ -120,14 +127,24 @@ export function PromptLibrary() {
               <TableRow key={t.id}>
                 <TableCell className="font-medium">{t.name}</TableCell>
                 <TableCell>
-                  {t.isDefault && <Badge variant="secondary">Default</Badge>}
+                  <div className="flex gap-1.5">
+                    {t.slug && (
+                      <Badge variant="secondary" className="gap-1">
+                        <Lock className="size-3" />
+                        {SLUG_LABELS[t.slug] ?? t.slug}
+                      </Badge>
+                    )}
+                    {t.isDefault && !t.slug && (
+                      <Badge variant="secondary">Default</Badge>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {new Date(t.updatedAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    {!t.isDefault && (
+                    {!t.isDefault && !t.slug && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -145,7 +162,7 @@ export function PromptLibrary() {
                       }
                       onSaved={fetchTemplates}
                     />
-                    {!t.isDefault && (
+                    {!t.slug && (
                       <Button
                         variant="destructive"
                         size="sm"

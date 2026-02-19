@@ -138,6 +138,7 @@ model ActivityLog {
 model PromptTemplate {
   id        String   @id @default(uuid()) @db.Uuid
   name      String
+  slug      String?  @unique @map("slug")
   content   String
   isDefault Boolean  @default(false) @map("is_default")
   createdAt DateTime @default(now()) @map("created_at")

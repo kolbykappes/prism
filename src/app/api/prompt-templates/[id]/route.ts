@@ -77,8 +77,8 @@ export async function DELETE(
       return errorResponse("Template not found", 404);
     }
 
-    if (template.isDefault) {
-      return errorResponse("Cannot delete the default prompt template", 400);
+    if (template.slug) {
+      return errorResponse("Cannot delete a system prompt template", 400);
     }
 
     await prisma.promptTemplate.delete({ where: { id } });

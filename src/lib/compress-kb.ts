@@ -2,26 +2,27 @@ import Anthropic from "@anthropic-ai/sdk";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity";
 import { logger } from "@/lib/logger";
+import { KB_COMPRESSION_PROMPT } from "@/lib/llm/prompt-template";
 
 const anthropic = new Anthropic();
 const MODEL = "claude-haiku-4-5-20251001";
-
-const COMPRESSION_SYSTEM_PROMPT = `You are a knowledge base curator. Your task is to compress and synthesize a collection of document summaries into a single, coherent knowledge base document.
-
-Guidelines:
-- Preserve all critical information: key decisions, action items, facts, names, dates, and outcomes
-- Eliminate redundancy across summaries — consolidate repeated themes
-- Organize by topic or theme rather than preserving per-document structure
-- Use clear Markdown formatting with headers, bullets, and emphasis where helpful
-- Maintain chronological context where it matters (reference specific dates for key events)
-- Deprioritize older content when it conflicts with or has been superseded by more recent content
-- Write in a dense, reference-friendly style — this will be fed into AI systems, not read casually
-- Do NOT include a preamble like "Here is your compressed knowledge base" — start directly with content`;
 
 export async function compressKb(projectId: string, targetTokens: number): Promise<void> {
   logger.info("compress-kb.started", { projectId, targetTokens });
 
   try {
+    // Load compression system prompt from DB, fall back to hardcoded constant
+    const compressionTemplate = await prisma.promptTemplate.findFirst({
+      where: { slug: "kb_compression" },
+    });
+    const systemPrompt = compressionTemplate?.content ?? KB_COMPRESSION_PROMPT;
+
+    logger.info("compress-kb.prompt-selected", {
+      projectId,
+      templateId: compressionTemplate?.id ?? null,
+      source: compressionTemplate ? "db" : "hardcoded",
+    });
+
     // Fetch all complete summaries ordered by content date ascending (oldest → newest)
     const summaries = await prisma.markdownSummary.findMany({
       where: { projectId, processingStatus: "complete" },
@@ -67,7 +68,7 @@ ${sections.join("\n\n---\n\n")}`;
       {
         model: MODEL,
         max_tokens: Math.min(targetTokens * 2, 8192), // Allow headroom but cap at 8192
-        system: COMPRESSION_SYSTEM_PROMPT,
+        system: systemPrompt,
         messages: [{ role: "user", content: userMessage }],
       },
       { signal: AbortSignal.timeout(240_000) }

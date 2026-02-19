@@ -14,25 +14,6 @@ const prisma = new PrismaClient({ adapter });
 
 const PROJECT_NAME = "Kolby Test";
 
-const DEFAULT_PROMPT_CONTENT = `You are a professional knowledge curator. Transform the following source content into well-structured markdown notes suitable for use as reference material in an AI assistant's project knowledge base.
-
-SOURCE FILE: {{filename}}
-FILE TYPE: {{fileType}}
-
-INSTRUCTIONS:
-- Create clear, scannable markdown with appropriate headings
-- For meeting transcripts: extract key discussion points, decisions, action items, and next steps
-- For documents: summarize main themes, key data points, and conclusions
-- For all content: preserve important specifics (names, dates, numbers, technical details)
-- Use bullet points for lists of items
-- Use blockquotes for important quotes or callouts
-- Omit filler, tangents, and redundant content
-- If the content includes participants/speakers, list them at the top
-- Target output length: roughly 20-30% of source length (concise but comprehensive)
-
-SOURCE CONTENT:
-{{extractedText}}`;
-
 const seedFiles = [
   { filename: "AI Platform Strategy Meeting_otter_ai.txt", fileType: "txt" as const },
   { filename: "Kirby Consignment Biz Planning_otter_ai.txt", fileType: "txt" as const },
@@ -47,24 +28,27 @@ async function main() {
   const { generateSummary } = await import("../src/lib/llm/claude");
   const { truncateText } = await import("../src/lib/llm/truncation");
 
+  const { MEETING_TRANSCRIPT_PROMPT, GENERAL_CONTENT_PROMPT, KB_COMPRESSION_PROMPT } =
+    await import("../src/lib/llm/prompt-template");
+
   console.log("Seeding database...\n");
 
-  // Seed default prompt template
-  const existingDefault = await prisma.promptTemplate.findFirst({
-    where: { isDefault: true },
-  });
-  if (!existingDefault) {
-    await prisma.promptTemplate.create({
-      data: {
-        name: "Default Knowledge Curator",
-        content: DEFAULT_PROMPT_CONTENT,
-        isDefault: true,
-      },
-    });
-    console.log("Created default prompt template\n");
-  } else {
-    console.log("Default prompt template already exists, skipping\n");
+  // Seed system prompt templates (idempotent — skip if slug already exists)
+  const systemPrompts = [
+    { slug: "meeting_transcript", name: "Meeting Transcript Summary", content: MEETING_TRANSCRIPT_PROMPT, isDefault: false },
+    { slug: "general_content",    name: "General Content Summary",    content: GENERAL_CONTENT_PROMPT,    isDefault: true  },
+    { slug: "kb_compression",     name: "Knowledge Base Compression", content: KB_COMPRESSION_PROMPT,     isDefault: false },
+  ];
+  for (const p of systemPrompts) {
+    const exists = await prisma.promptTemplate.findFirst({ where: { slug: p.slug } });
+    if (!exists) {
+      await prisma.promptTemplate.create({ data: p });
+      console.log(`  Created prompt "${p.name}"`);
+    } else {
+      console.log(`  Skipping prompt "${p.name}" — already exists`);
+    }
   }
+  console.log();
 
   // Delete existing project (cascade deletes children)
   const existing = await prisma.project.findUnique({

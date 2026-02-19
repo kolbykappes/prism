@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && next build",
+    "build": "prisma generate && prisma db push && prisma db seed && next build",
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
@@ -14,7 +14,7 @@
     "db:seed": "npx tsx prisma/seed.ts"
   },
   "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
+    "seed": "npx tsx prisma/seed-system.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.74.0",

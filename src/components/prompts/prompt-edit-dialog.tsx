@@ -17,6 +17,7 @@ import { toast } from "sonner";
 interface PromptTemplate {
   id: string;
   name: string;
+  slug: string | null;
   content: string;
   isDefault: boolean;
 }
@@ -90,6 +91,13 @@ export function PromptEditDialog({
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {template?.slug && (
+            <p className="text-sm text-muted-foreground">
+              This is a system prompt. Your edits are saved to the database and
+              will persist across deploys, but the original version is preserved
+              in code and will be restored if the database is reset.
+            </p>
+          )}
           <div>
             <Label htmlFor="name">Name</Label>
             <Input
