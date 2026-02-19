@@ -19,6 +19,7 @@ interface Summary {
   sourceFile: {
     filename: string;
     uploadedBy?: string;
+    uploadedAt: string;
     contentDate: string | null;
     contentDateSource: string | null;
   };
