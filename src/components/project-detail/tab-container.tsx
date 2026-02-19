@@ -89,7 +89,7 @@ export function TabContainer({
         <TabsTrigger value="source-files">Source Files</TabsTrigger>
         <TabsTrigger value="people">People</TabsTrigger>
       </TabsList>
-      <TabsContent value="knowledge-base" className="mt-4">
+      <TabsContent value="knowledge-base" className="mt-2">
         <KnowledgeBaseTab
           projectId={projectId}
           summaries={summaries}
@@ -98,21 +98,21 @@ export function TabContainer({
           compressedKbTokenCount={compressedKbTokenCount}
         />
       </TabsContent>
-      <TabsContent value="summaries" className="mt-4">
+      <TabsContent value="summaries" className="mt-2">
         <SummariesTab
           summaries={summaries}
           projectId={projectId}
           onClickFilename={handleClickFilename}
         />
       </TabsContent>
-      <TabsContent value="source-files" className="mt-4">
+      <TabsContent value="source-files" className="mt-2">
         <SourceFilesTab
           files={files}
           projectId={projectId}
           onViewSummary={handleViewSummary}
         />
       </TabsContent>
-      <TabsContent value="people" className="mt-4">
+      <TabsContent value="people" className="mt-2">
         <PeopleTab people={people} projectId={projectId} />
       </TabsContent>
     </Tabs>

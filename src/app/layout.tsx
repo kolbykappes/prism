@@ -31,7 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         <Header />
-        <main className="container mx-auto px-4 py-8">{children}</main>
+        <main className="mx-auto w-full max-w-screen-2xl px-4 py-4">{children}</main>
         <footer className="py-4 text-center text-xs text-muted-foreground">
           PRISM v{APP_VERSION}
         </footer>

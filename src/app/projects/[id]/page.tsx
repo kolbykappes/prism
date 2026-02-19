@@ -86,7 +86,7 @@ export default async function ProjectDetailPage({
 
   return (
     <div>
-      <div className="mb-2">
+      <div className="mb-1">
         <Link
           href="/"
           className="text-sm text-muted-foreground hover:underline"
@@ -94,7 +94,7 @@ export default async function ProjectDetailPage({
           &larr; All Projects
         </Link>
       </div>
-      <div className="mb-8 flex items-start justify-between">
+      <div className="mb-3 flex items-start justify-between">
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-3xl font-bold">{project.name}</h1>
