@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { extractText } from "@/lib/text-extraction";
+import { extractContentDate } from "@/lib/extract-content-date";
 import { truncateText } from "@/lib/llm/truncation";
 import { buildPrompt } from "@/lib/llm/prompt-template";
 import { generateSummary } from "@/lib/llm/claude";
@@ -53,6 +54,19 @@ export async function processFile(sourceFileId: string): Promise<void> {
     const arrayBuffer = await response.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     const extractedText = await extractText(buffer, sourceFile.fileType);
+
+    // Extract content date (skip if already manually set)
+    if (sourceFile.contentDateSource !== "manual") {
+      const { date, source } = extractContentDate(buffer, sourceFile.fileType, sourceFile.filename);
+      await prisma.sourceFile.update({
+        where: { id: sourceFileId },
+        data: {
+          contentDate: date ?? sourceFile.uploadedAt,
+          contentDateSource: source ?? "uploaded",
+        },
+      });
+      logger.info("process-file.content-date", { sourceFileId, contentDate: date, source: source ?? "uploaded" });
+    }
 
     logger.info("process-file.text-extracted", {
       sourceFileId,

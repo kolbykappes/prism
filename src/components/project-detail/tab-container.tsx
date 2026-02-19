@@ -19,6 +19,8 @@ interface Summary {
   sourceFile: {
     filename: string;
     uploadedBy?: string;
+    contentDate: string | null;
+    contentDateSource: string | null;
   };
 }
 
@@ -30,6 +32,8 @@ interface SourceFile {
   blobUrl: string;
   uploadedAt: string;
   uploadedBy: string;
+  contentDate: string | null;
+  contentDateSource: string | null;
 }
 
 interface ProjectPerson {
@@ -52,16 +56,21 @@ export function TabContainer({
   files,
   projectId,
   people,
+  compressedKb,
+  compressedKbAt,
+  compressedKbTokenCount,
 }: {
   summaries: Summary[];
   files: SourceFile[];
   projectId: string;
   people: ProjectPerson[];
+  compressedKb: string | null;
+  compressedKbAt: string | null;
+  compressedKbTokenCount: number | null;
 }) {
   const [activeTab, setActiveTab] = useState("knowledge-base");
 
   function handleViewSummary(fileId: string) {
-    // Find if a summary exists for this file
     const summary = summaries.find((s) => s.sourceFileId === fileId);
     if (summary) {
       setActiveTab("summaries");
@@ -82,8 +91,11 @@ export function TabContainer({
       </TabsList>
       <TabsContent value="knowledge-base" className="mt-4">
         <KnowledgeBaseTab
+          projectId={projectId}
           summaries={summaries}
-          onClickFilename={handleClickFilename}
+          compressedKb={compressedKb}
+          compressedKbAt={compressedKbAt}
+          compressedKbTokenCount={compressedKbTokenCount}
         />
       </TabsContent>
       <TabsContent value="summaries" className="mt-4">

@@ -34,6 +34,7 @@ enum ActivityAction {
   person_removed
   email_ingested
   otter_ingested
+  kb_compressed
 }
 
 model Project {
@@ -49,6 +50,10 @@ model Project {
   googleDocId  String? @map("google_doc_id")
   googleDocUrl String? @map("google_doc_url")
   emailAlias   String? @unique @map("email_alias")
+
+  compressedKb           String?   @map("compressed_kb")
+  compressedKbAt         DateTime? @map("compressed_kb_at")
+  compressedKbTokenCount Int?      @map("compressed_kb_token_count")
 
   sourceFiles       SourceFile[]
   markdownSummaries MarkdownSummary[]
@@ -68,6 +73,8 @@ model SourceFile {
   uploadedAt DateTime @default(now()) @map("uploaded_at")
   uploadedBy    String   @default("Kolby") @map("uploaded_by")
   ingestSource  String?  @default("manual_upload") @map("ingest_source")
+  contentDate       DateTime? @map("content_date")
+  contentDateSource String?   @map("content_date_source")
 
   project         Project          @relation(fields: [projectId], references: [id], onDelete: Cascade)
   markdownSummary MarkdownSummary?

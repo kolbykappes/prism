@@ -9,7 +9,13 @@
       "Bash(npm run build:*)",
       "Bash(npx prisma:*)",
       "Bash(node -e:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next build)",
+      "Bash(node_modules/.bin/next build)",
+      "Bash(npx dotenv:*)"
     ]
   }
 }

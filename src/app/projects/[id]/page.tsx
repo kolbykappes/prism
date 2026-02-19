@@ -26,7 +26,7 @@ export default async function ProjectDetailPage({
       markdownSummaries: {
         orderBy: { generatedAt: "desc" },
         include: {
-          sourceFile: { select: { filename: true, uploadedBy: true } },
+          sourceFile: { select: { filename: true, uploadedBy: true, contentDate: true, contentDateSource: true } },
         },
       },
       projectPeople: {
@@ -49,7 +49,12 @@ export default async function ProjectDetailPage({
     errorMessage: s.errorMessage ?? null,
     tokenCount: s.tokenCount,
     truncated: s.truncated,
-    sourceFile: s.sourceFile,
+    sourceFile: {
+      filename: s.sourceFile.filename,
+      uploadedBy: s.sourceFile.uploadedBy,
+      contentDate: s.sourceFile.contentDate?.toISOString() ?? null,
+      contentDateSource: s.sourceFile.contentDateSource ?? null,
+    },
   }));
 
   const files = project.sourceFiles.map((f) => ({
@@ -60,6 +65,8 @@ export default async function ProjectDetailPage({
     blobUrl: f.blobUrl,
     uploadedAt: f.uploadedAt.toISOString(),
     uploadedBy: f.uploadedBy,
+    contentDate: f.contentDate?.toISOString() ?? null,
+    contentDateSource: f.contentDateSource ?? null,
   }));
 
   const people = project.projectPeople.map((pp) => ({
@@ -138,6 +145,9 @@ export default async function ProjectDetailPage({
         files={files}
         projectId={id}
         people={people}
+        compressedKb={project.compressedKb ?? null}
+        compressedKbAt={project.compressedKbAt?.toISOString() ?? null}
+        compressedKbTokenCount={project.compressedKbTokenCount ?? null}
       />
     </div>
   );

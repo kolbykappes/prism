@@ -41,6 +41,9 @@ PRISM is a web application that ingests source materials (transcripts, documents
 | user_id | string | Nullable, future auth |
 | google_doc_id | string | Nullable, future Google Docs sync |
 | google_doc_url | string | Nullable, future Google Docs sync |
+| compressed_kb | text | Nullable, compressed knowledge base document |
+| compressed_kb_at | timestamp | Nullable, when compression was last run |
+| compressed_kb_token_count | integer | Nullable, output token count of compressed KB |
 
 #### Source Files
 
@@ -55,6 +58,8 @@ PRISM is a web application that ingests source materials (transcripts, documents
 | uploaded_at | timestamp | |
 | uploaded_by | string | Default "Kolby", or "Otter.ai" for imports |
 | ingest_source | string | "manual_upload", "otter", "email" (planned) |
+| content_date | timestamp | Nullable, actual creation date of the content |
+| content_date_source | string | Nullable, "extracted", "manual", or "uploaded" |
 
 #### Markdown Summaries
 
